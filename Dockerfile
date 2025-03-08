@@ -32,17 +32,21 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
-
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid 10014 \
+    "choreo"
 # Create a non-root user for security
-RUN adduser --disabled-password --gecos "" --home "/nonexistent" --shell "/sbin/nologin" --no-create-home --uid 10014 choreo \
-    && useradd -ms /bin/bash gpt-researcher \
-    && chown -R gpt-researcher:gpt-researcher /usr/src/app \
+RUN useradd -u 10014 -m gpt-researcher \
     && mkdir -p /usr/src/app/outputs \
-    && chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs \
+    && chown -R gpt-researcher:gpt-researcher /usr/src/app /usr/src/app/outputs \
     && chmod 777 /usr/src/app/outputs
-
-# Switch to the non-root user
-USER 10014
+    
+USER  gpt-researcher
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
@@ -52,4 +56,4 @@ COPY --chown=gpt-researcher:gpt-researcher ./ ./
 EXPOSE 8000
 
 # Define the default command to run the application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9090"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
