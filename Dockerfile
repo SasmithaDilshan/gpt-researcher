@@ -42,7 +42,7 @@ RUN adduser --disabled-password --gecos "" --home "/nonexistent" --shell "/sbin/
     && chmod 777 /usr/src/app/outputs
 
 # Switch to the non-root user
-USER gpt-researcher
+USER 10014
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
