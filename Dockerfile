@@ -37,10 +37,20 @@ FROM gpt-researcher-install AS gpt-researcher
 RUN useradd -ms /bin/bash gpt-researcher && \
     chown -R gpt-researcher:gpt-researcher /usr/src/app && \
     # Add these lines to create and set permissions for outputs directory
+    adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid 10014 \
+    "choreo"
+
     mkdir -p /usr/src/app/outputs && \
     chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
     chmod 777 /usr/src/app/outputs
-    
+# Use the above created unprivileged user
+USER 10014
 USER gpt-researcher
 WORKDIR /usr/src/app
 
@@ -48,7 +58,7 @@ WORKDIR /usr/src/app
 COPY --chown=gpt-researcher:gpt-researcher ./ ./
 
 # Expose the application's port
-EXPOSE 9090
+EXPOSE 8000
 
 # Define the default command to run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9090"]
