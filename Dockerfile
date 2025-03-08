@@ -34,18 +34,15 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 FROM gpt-researcher-install AS gpt-researcher
 
 # Create a non-root user for security
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid 10014 \
-    "choreo"
+RUN useradd -ms /bin/bash gpt-researcher && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app && \
+    # Add these lines to create and set permissions for outputs directory
 
-# Use the above created unprivileged user
+    mkdir -p /usr/src/app/outputs && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
+    chmod 777 /usr/src/app/outputs
+    
 USER 10014
-
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
