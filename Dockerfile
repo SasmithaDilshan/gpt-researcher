@@ -2,20 +2,19 @@
 FROM python:3.11.4-slim-bullseye AS install-browser
 
 # Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
-RUN apt-get update \
-    && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
-    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+RUN apt-get update && apt-get install -y \
+    gnupg ca-certificates wget curl \
+    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | tee /usr/share/keyrings/google-chrome-keyring.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
-    && apt-get install -y google-chrome-stable chromium-driver \
-    && google-chrome --version && chromedriver --version \
-    && apt-get install -y --no-install-recommends firefox-esr build-essential \
+    && apt-get install -y google-chrome-stable chromium-driver firefox-esr \
     && wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz \
     && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
     && chmod +x geckodriver \
     && mv geckodriver /usr/local/bin/ \
     && rm geckodriver-v0.33.0-linux64.tar.gz \
-    && rm -rf /var/lib/apt/lists/*  # Clean up apt lists to reduce image size
+    && rm -rf /var/lib/apt/lists/*
+
 
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
@@ -32,21 +31,16 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
-RUN adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid 10014 \
-    "choreo"
+
 # Create a non-root user for security
-RUN useradd -u 10014 -m gpt-researcher \
-    && mkdir -p /usr/src/app/outputs \
-    && chown -R gpt-researcher:gpt-researcher /usr/src/app /usr/src/app/outputs \
-    && chmod 777 /usr/src/app/outputs
+RUN useradd -ms /bin/bash gpt-researcher && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app && \
+    # Add these lines to create and set permissions for outputs directory
+    mkdir -p /usr/src/app/outputs && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
+    chmod 777 /usr/src/app/outputs
     
-USER  gpt-researcher
+USER gpt-researcher
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership

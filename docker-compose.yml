@@ -1,21 +1,17 @@
 services:
   gpt-researcher:
-    pull_policy: build
-    image: gptresearcher/gpt-researcher
-    build: ./
+    image: gpt-researcher/gpt-researcher
     environment: 
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       TAVILY_API_KEY: ${TAVILY_API_KEY}
       LANGCHAIN_API_KEY: ${LANGCHAIN_API_KEY}
-      LOGGING_LEVEL: INFO
-    volumes:
-      - ${PWD}/my-docs:/usr/src/app/my-docs:rw
-      - ${PWD}/outputs:/usr/src/app/outputs:rw
-      - ${PWD}/logs:/usr/src/app/logs:rw
-    user: root
-    restart: always
     ports:
       - 8000:8000
+  gptr-nextjs:
+    image: gpt-researcher/gptr-nextjs
+    ports:
+      - 3000:3000
+
       
   # gptr-nextjs:
   #   pull_policy: build
