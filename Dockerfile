@@ -36,7 +36,8 @@ FROM gpt-researcher-install AS gpt-researcher
 
 # Create a non-root user for security
 # Create a non-privileged user without a home directory or shell
-RUN adduser \
+RUN mkdir -p /nonexistent && \
+    adduser \
     --disabled-password \
     --gecos "" \
     --home "/nonexistent" \
