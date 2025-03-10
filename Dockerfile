@@ -33,19 +33,31 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 FROM gpt-researcher-install AS gpt-researcher
 
 # Create a non-root user for security
-RUN useradd -ms /bin/bash gpt-researcher && \
-    chown -R gpt-researcher:gpt-researcher /usr/src/app && \
-    # Add these lines to create and set permissions for outputs directory
+# Create a non-privileged user without a home directory or shell
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid 10014 \
+    "choreo" && \
+    # Create the application directory and set permissions
+    mkdir -p /usr/src/app && \
+    chown -R choreo:choreo /usr/src/app && \
+    # Create outputs directory and set permissions
     mkdir -p /usr/src/app/outputs && \
-    chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
+    chown -R choreo:choreo /usr/src/app/outputs && \
     chmod 777 /usr/src/app/outputs
 
-USER 10014
-USER gpt-researcher
+# Use the above-created unprivileged user
+USER choreo
+
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
-COPY --chown=gpt-researcher:gpt-researcher ./ ./
+# Copy the rest of the application files with proper ownership
+COPY --chown=choreo:choreo ./ ./
 
 # Expose the application's port
 EXPOSE 8000
