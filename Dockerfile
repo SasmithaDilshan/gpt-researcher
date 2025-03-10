@@ -2,18 +2,20 @@
 FROM python:3.11.4-slim-bullseye AS install-browser
 
 # Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
-RUN apt-get update && apt-get install -y \
-    gnupg ca-certificates wget curl \
-    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | tee /usr/share/keyrings/google-chrome-keyring.gpg > /dev/null \
-    && echo "deb [signed-by=/usr/share/keyrings/google-chrome-keyring.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | tee /etc/apt/sources.list.d/google-chrome.list \
+RUN apt-get update \
+    && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
+    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
-    && apt-get install -y google-chrome-stable chromium-driver firefox-esr \
+    && apt-get install -y google-chrome-stable chromium-driver \
+    && google-chrome --version && chromedriver --version \
+    && apt-get install -y --no-install-recommends firefox-esr build-essential \
     && wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz \
     && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
     && chmod +x geckodriver \
     && mv geckodriver /usr/local/bin/ \
     && rm geckodriver-v0.33.0-linux64.tar.gz \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*  # Clean up apt lists to reduce image size
 
 
 # Stage 2: Python dependencies installation
