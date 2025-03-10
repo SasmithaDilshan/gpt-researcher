@@ -51,7 +51,7 @@ RUN adduser \
     chmod 777 /usr/src/app/outputs
 
 # Use the above-created unprivileged user
-USER choreo
+USER 10014
 
 WORKDIR /usr/src/app
 
