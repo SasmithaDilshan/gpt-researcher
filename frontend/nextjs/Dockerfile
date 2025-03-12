@@ -36,12 +36,8 @@ RUN npm run build
 FROM nginx
 
 
-# Switch to the non-root user
+FROM nginx
 USER 10014
-
-# Expose port
 EXPOSE 3000
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-# Start the application
-CMD ["npm", "run", "start"]
-
+COPY --from=builder /app/build /usr/share/nginx/html
