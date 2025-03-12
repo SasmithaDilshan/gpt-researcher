@@ -61,7 +61,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 COPY --chown=${USER}:${GROUP} assistant/application/ assistant/application/
 
 
-USER ${USER_GROUP_ID}
+USER 10014
 
 EXPOSE 8000
 
