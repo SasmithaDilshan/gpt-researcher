@@ -21,7 +21,7 @@ RUN apt-get update \
 FROM install-browser AS gpt-researcher-install
 
 ENV PIP_ROOT_USER_ACTION=ignore
-ENV TRIVY_DISABLE_VEX_NOTICE=true
+ENV TRIVY_DISABLE_VEX_NOTICE=ignore
 WORKDIR /usr/src/app
 
 
