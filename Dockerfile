@@ -49,6 +49,8 @@ RUN useradd -ms /bin/bash gpt-researcher && \
     chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
     chmod 777 /usr/src/app/outputs
     
+RUN mkdir -p /app/logs && chmod 777 /app/logs
+
 USER 10014
 WORKDIR /usr/src/app
 
