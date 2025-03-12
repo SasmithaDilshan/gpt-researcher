@@ -6,7 +6,6 @@ RUN apt-get update && apt-get install -y \
     google-chrome-stable chromium-driver \
     firefox-esr build-essential \
     libexpat1 libgssapi-krb5-2 libk5crypto3 libkrb5-3 libkrb5support0 linux-libc-dev \
-    && rm -rf /var/lib/apt/lists/ \
     && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update \
