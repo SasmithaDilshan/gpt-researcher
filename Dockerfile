@@ -1,7 +1,7 @@
 # Stage 1: Browser and build tools installation
 FROM python:3.11.4-slim-bullseye AS install-browser
 
-# Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
+# Install necessary tools
 RUN apt-get update \
     && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
     && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -21,11 +21,9 @@ RUN apt-get update \
 FROM install-browser AS gpt-researcher-install
 
 ENV PIP_ROOT_USER_ACTION=ignore
-ENV TRIVY_DISABLE_VEX_NOTICE=ignore
 WORKDIR /usr/src/app
 
-
-# Copy and install Python dependencies in a single layer to optimize cache usage
+# Copy and install Python dependencies
 COPY ./requirements.txt ./requirements.txt
 COPY ./multi_agents/requirements.txt ./multi_agents/requirements.txt
 
@@ -35,12 +33,29 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
 
-    
-USER 10014
+# Define user and group
+ARG GROUP=gpt-researcher
+ARG USER=python-gpt-researcher
+ARG USER_ID=10500
+ARG USER_GROUP_ID=10500
+
+# Create a non-root user
+RUN groupadd --gid ${USER_GROUP_ID} ${GROUP} && \
+    useradd --uid ${USER_ID} --gid ${USER_GROUP_ID} --create-home --shell /bin/bash ${USER}
+
+# Set ownership of the working directory
+RUN mkdir -p /usr/src/app/outputs && \
+    chown -R ${USER}:${GROUP} /usr/src/app && \
+    chown -R ${USER}:${GROUP} /usr/src/app/outputs && \
+    chmod 777 /usr/src/app/outputs
+
+# Switch to the non-root user
+USER ${USER}
+
 WORKDIR /usr/src/app
 
-# Copy the rest of the application files with proper ownership
-COPY --chown=gpt-researcher:gpt-researcher ./ ./
+# Copy application files
+COPY --chown=${USER}:${GROUP} ./ ./
 
 # Expose the application's port
 EXPOSE 8000
