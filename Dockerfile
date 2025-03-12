@@ -1,22 +1,27 @@
 # Stage 1: Browser and build tools installation
-FROM choreocontrolplane.azurecr.io/ubuntu:20.04 AS builder
+FROM python:3.11.4-slim-bullseye AS install-browser
 
 # Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends python3.9=3.9.5-3ubuntu0~20.04.1 \
-      python3-pip=20.0.2-5ubuntu1.10 \
-      python3.9-venv=3.9.5-3ubuntu0~20.04.1 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    python3.9 -m venv /opt/venv
-
-ENV PATH="/opt/venv/bin:$PATH"
+RUN apt-get update \
+    && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
+    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable chromium-driver \
+    && google-chrome --version && chromedriver --version \
+    && apt-get install -y --no-install-recommends firefox-esr build-essential \
+    && wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz \
+    && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
+    && chmod +x geckodriver \
+    && mv geckodriver /usr/local/bin/ \
+    && rm geckodriver-v0.33.0-linux64.tar.gz \
+    && rm -rf /var/lib/apt/lists/*  # Clean up apt lists to reduce image size
 
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
 
 ENV PIP_ROOT_USER_ACTION=ignore
-
+WORKDIR /usr/src/app
 
 # Copy and install Python dependencies in a single layer to optimize cache usage
 COPY ./requirements.txt ./requirements.txt
@@ -28,41 +33,21 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
 
-FROM choreocontrolplane.azurecr.io/ubuntu:20.04
-
-ARG GROUP=ai
-ARG USER=python-ai
-ARG USER_ID=10500
-ARG USER_GROUP_ID=10500
-
-RUN groupadd --system --gid ${USER_GROUP_ID} ${GROUP} && \
-    useradd --system --create-home --home-dir /home/${USER} --no-log-init --gid ${USER_GROUP_ID} --uid ${USER_ID} ${USER} && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      python3.9=3.9.5-3ubuntu0~20.04.1 \
-      python3.9-venv=3.9.5-3ubuntu0~20.04.1 \
-      libncurses6=6.2-0ubuntu2.1 \
-      libncursesw6=6.2-0ubuntu2.1 \
-      libtinfo6=6.2-0ubuntu2.1 \
-      ncurses-base=6.2-0ubuntu2.1 \
-      ncurses-bin=6.2-0ubuntu2.1 \
-      perl-base=5.30.0-9ubuntu0.5 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-
+# Create a non-root user for security
+RUN useradd -ms /bin/bash gpt-researcher && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app && \
+    # Add these lines to create and set permissions for outputs directory
+    mkdir -p /usr/src/app/outputs && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
+    chmod 777 /usr/src/app/outputs
+    
+USER 10014
 WORKDIR /usr/src/app
 
+# Copy the rest of the application files with proper ownership
+COPY --chown=gpt-researcher:gpt-researcher ./ ./
 
-COPY --from=builder --chown=${USER}:${GROUP} /opt/venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# sources
-COPY --chown=${USER}:${GROUP} assistant/application/ assistant/application/
-
-
-USER 10014
-
+# Expose the application's port
 EXPOSE 8000
 
 # Define the default command to run the application
