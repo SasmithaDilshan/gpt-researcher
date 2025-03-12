@@ -15,26 +15,28 @@ FROM node:18.17.0-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and install dependencies
-COPY ./package.json ./
+# Copy package.json and package-lock.json (if available)
+COPY package.json package-lock.json ./
 
-# Set npm cache to a writable location
+# Set environment variable for npm to use a writable cache directory
+ENV NPM_CONFIG_CACHE=/home/node/.npm
+
+# Create a writable npm cache directory and set correct permissions
 RUN mkdir -p /home/node/.npm && chown -R 10014:10014 /home/node/.npm
-RUN npm config set cache /home/node/.npm
 
-# Install dependencies with the correct permissions
+# Install dependencies before switching users
 RUN npm install --legacy-peer-deps
 
-# Copy remaining files
+# Copy the rest of the application files
 COPY . .
 
 # Build the application
 RUN npm run build
 
-# Set correct permissions for the app directory
+# Set correct ownership for the app directory
 RUN chown -R 10014:10014 /app
 
-# Switch to non-root user
+# Switch to the non-root user
 USER 10014
 
 # Expose port
