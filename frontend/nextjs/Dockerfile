@@ -16,7 +16,7 @@ FROM node:18.17.0-alpine
 WORKDIR /app
 
 # Copy package.json and package-lock.json (if available)
-COPY package.json package-lock.json ./
+COPY ./package.json ./
 
 # Set environment variable for npm to use a writable cache directory
 ENV NPM_CONFIG_CACHE=/home/node/.npm
@@ -44,3 +44,4 @@ EXPOSE 3000
 
 # Start the application
 CMD ["npm", "run", "start"]
+
