@@ -2,6 +2,14 @@
 FROM python:3.11.7-slim-bookworm AS install-browser
 
 # Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libexpat1=2.5.0-1+deb12u1 \
+    libgssapi-krb5-2=1.20.1-2+deb12u2 \
+    libk5crypto3 \
+    libkrb5-3 \
+    libkrb5support0 \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update \
     && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
     && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
