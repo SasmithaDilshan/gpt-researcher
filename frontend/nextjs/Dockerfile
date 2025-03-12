@@ -32,9 +32,9 @@ COPY . .
 
 # Build the application
 RUN npm run build
+
 FROM nginx
-# Set correct ownership for the app directory
-RUN chown -R 10014:10014 /app
+
 
 # Switch to the non-root user
 USER 10014
