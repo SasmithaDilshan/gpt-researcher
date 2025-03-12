@@ -21,7 +21,9 @@ RUN apt-get update \
 FROM install-browser AS gpt-researcher-install
 
 ENV PIP_ROOT_USER_ACTION=ignore
+ENV TRIVY_DISABLE_VEX_NOTICE=true
 WORKDIR /usr/src/app
+
 
 # Copy and install Python dependencies in a single layer to optimize cache usage
 COPY ./requirements.txt ./requirements.txt
