@@ -50,7 +50,7 @@ RUN mkdir -p /usr/src/app/outputs && \
     chmod 777 /usr/src/app/outputs
 
 # Switch to the non-root user
-USER ${USER}
+USER ${USER_ID}
 
 WORKDIR /usr/src/app
 
