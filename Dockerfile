@@ -1,30 +1,6 @@
 # Stage 1: Browser and build tools installation
 FROM python:3.11.7-slim-bookworm AS install-browser
 
-# Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libexpat1=2.5.0-1+deb12u1 \
-    libgssapi-krb5-2=1.20.1-2+deb12u2 \
-    libk5crypto3 \
-    libkrb5-3 \
-    libkrb5support0 \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt-get update \
-    && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
-    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable chromium-driver \
-    && google-chrome --version && chromedriver --version \
-    && apt-get install -y --no-install-recommends firefox-esr build-essential \
-    && wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz \
-    && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
-    && chmod +x geckodriver \
-    && mv geckodriver /usr/local/bin/ \
-    && rm geckodriver-v0.33.0-linux64.tar.gz \
-    && rm -rf /var/lib/apt/lists/*  # Clean up apt lists to reduce image size
-
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
 
@@ -47,11 +23,13 @@ RUN useradd -ms /bin/bash gpt-researcher && \
     # Add these lines to create and set permissions for outputs directory
     mkdir -p /usr/src/app/outputs && \
     chown -R gpt-researcher:gpt-researcher /usr/src/app/outputs && \
-    chmod 777 /usr/src/app/outputs
+    chmod 777 /usr/src/app/outputs && \
+    # Create logs directory and set permissions
+    mkdir -p /usr/src/app/logs && \
+    chown -R gpt-researcher:gpt-researcher /usr/src/app/logs && \
+    chmod 777 /usr/src/app/logs
     
-RUN mkdir -p /app/logs && chmod 777 /app/logs
-
-USER 10014
+USER gpt-researcher
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
