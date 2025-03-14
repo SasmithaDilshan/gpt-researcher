@@ -1,6 +1,13 @@
 # Stage 1: Browser and build tools installation
 FROM python:3.11.7-slim-bookworm AS install-browser
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libexpat1=2.5.0-1+deb12u1 \
+    libgssapi-krb5-2=1.20.1-2+deb12u2 \
+    libk5crypto3 \
+    libkrb5-3 \
+    libkrb5support0 \
+    && rm -rf /var/lib/apt/lists/*
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
 
