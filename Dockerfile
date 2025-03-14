@@ -24,24 +24,25 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
 
-# Create a non-root user with UID 10014 for security
-RUN useradd -u 10014 -ms /bin/bash tempuser && \
-    chown -R tempuser:tempuser /usr/src/app && \
+# Create a non-root user for security
+RUN useradd -ms /bin/bash 10014 && \
+    chown -R 10014:10014 /usr/src/app && \
     # Add these lines to create and set permissions for outputs directory
     mkdir -p /usr/src/app/outputs && \
-    chown -R tempuser:tempuser /usr/src/app/outputs && \
-    chmod 777 /usr/src/app/outputs && \
+    chown -R 10014:gpt-researcher10014src/app/outputs && \
     # Create logs directory and set permissions
     mkdir -p /usr/src/app/logs && \
-    chown -R tempuser:tempuser /usr/src/app/logs && \
+    chown -R 10014:10014 /usr/src/app/logs && \
     chmod 777 /usr/src/app/logs
+
 
 # Switch to the user with UID 10014
 USER 10014
+U
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
-COPY --chown=tempuser:tempuser ./ ./
+COPY --chown=10014:10014 ./ ./
 
 # Expose the application's port
 EXPOSE 8000
