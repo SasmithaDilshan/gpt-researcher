@@ -83,7 +83,7 @@ app.add_middleware(
 )
 
 # Constants
-DOC_PATH = os.getenv("DOC_PATH", "./my-docs")
+# DOC_PATH = os.getenv("DOC_PATH", "./my-docs")
 
 # Startup event
 
@@ -92,7 +92,7 @@ DOC_PATH = os.getenv("DOC_PATH", "./my-docs")
 def startup_event():
     os.makedirs("outputs", exist_ok=True)
     app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
-    os.makedirs(DOC_PATH, exist_ok=True)
+    # os.makedirs(DOC_PATH, exist_ok=True)
     
 
 # Routes
