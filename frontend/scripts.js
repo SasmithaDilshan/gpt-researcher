@@ -38,13 +38,14 @@ const GPTResearcher = (() => {
   }
 
   const listenToSockEvents = () => {
+    const serviceURL = window?.configs?.apiUrl ? window.configs.apiUrl : "/";
     const { protocol, host, pathname } = window.location
     const ws_uri = `${
       protocol === 'https:' ? 'wss:' : 'ws:'
     }//${host}${pathname}ws`
     const converter = new showdown.Converter()
-   
-    const socket = new WebSocket(ws_uri)
+    const url = "wss://"+serviceURL+"/ws"
+    const socket = new WebSocket(url)
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data)
