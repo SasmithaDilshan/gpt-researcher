@@ -38,7 +38,7 @@ const GPTResearcher = (() => {
   }
 
   const listenToSockEvents = () => {
-    const serviceURL ="https://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-researcher-backend/v1/";
+    const serviceURL ="eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-researcher-backend/v1/";
     const { protocol, host, pathname } = window.location
     const ws_uri = `${
       protocol === 'https:' ? 'wss:' : 'ws:'
