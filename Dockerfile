@@ -31,9 +31,9 @@ RUN useradd -u 10014 -ms /bin/bash gpt-researcher \
     && mkdir -p /usr/src/app/outputs \
     && mkdir -p /usr/src/app/logs \
     && chown -R gpt-researcher:gpt-researcher /usr/src/app \
-    && chmod 755 /usr/src/app \
-    && chmod 755 /usr/src/app/outputs \
-    && chmod 755 /usr/src/app/logs
+    && chmod -R 777 /usr/src/app \
+    && chmod -R 777 /usr/src/app/outputs \
+    && chmod -R 777 /usr/src/app/logs
 
 
 # Switch to the user with UID 10014
