@@ -43,10 +43,12 @@ const GPTResearcher = (() => {
       protocol === 'https:' ? 'wss:' : 'ws:'
     }//${host}${pathname}ws`
     const converter = new showdown.Converter()
-    const socket = new WebSocket(ws_uri)
+    const ws_url = "ws://localhost:8000/ws"
+    const socket = new WebSocket(ws_url)
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data)
+      console.log(ws_uri);
       console.log("Received message:", data);  // Debug log
       if (data.type === 'logs') {
         addAgentResponse(data)
