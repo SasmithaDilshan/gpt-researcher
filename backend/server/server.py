@@ -15,7 +15,7 @@ from backend.server.server_utils import (
     execute_multi_agents, handle_websocket_communication
 )
 
-
+import uvicorn
 from gpt_researcher.utils.logging_config import setup_research_logging
 
 import logging
@@ -132,3 +132,5 @@ async def websocket_endpoint(websocket: WebSocket):
         await handle_websocket_communication(websocket, manager)
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
