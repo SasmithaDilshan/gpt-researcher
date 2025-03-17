@@ -1,23 +1,13 @@
 # Stage 1: Browser and build tools installation
-FROM python:3.11.4-slim-bullseye AS install-browser
+FROM python:3.11.7-slim-bookworm AS install-browser
 
-# Install Chromium, Chromedriver, Firefox, Geckodriver, and build tools in one layer
-RUN apt-get update \
-    && apt-get install -y gnupg wget ca-certificates --no-install-recommends \
-    && wget -qO - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable chromium-driver \
-    && google-chrome --version && chromedriver --version \
-    && apt-get install -y --no-install-recommends firefox-esr build-essential \
-    && wget https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz \
-    && tar -xvzf geckodriver-v0.33.0-linux64.tar.gz \
-    && chmod +x geckodriver \
-    && mv geckodriver /usr/local/bin/ \
-    && rm geckodriver-v0.33.0-linux64.tar.gz \
-    && rm -rf /var/lib/apt/lists/*  # Clean up apt lists to reduce image size
-
-
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libexpat1=2.5.0-1+deb12u1 \
+    libgssapi-krb5-2=1.20.1-2+deb12u2 \
+    libk5crypto3 \
+    libkrb5-3 \
+    libkrb5support0 \
+    && rm -rf /var/lib/apt/lists/*
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
 
@@ -34,33 +24,24 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Stage 3: Final stage with non-root user and app
 FROM gpt-researcher-install AS gpt-researcher
 
-# Create a non-root user for security
-# Create a non-privileged user without a home directory or shell
-RUN mkdir -p /nonexistent && \
-    adduser \
-    --disabled-password \
-    --gecos "" \
-    --home "/nonexistent" \
-    --shell "/sbin/nologin" \
-    --no-create-home \
-    --uid 10014 \
-    "choreo" && \
-    # Create the application directory and set permissions
-    mkdir -p /usr/src/app && \
-    chown -R choreo:choreo /usr/src/app && \
-    # Create outputs directory and set permissions
+# Create a non-root user with UID 10014 for security
+RUN useradd -u 10014 -ms /bin/bash tempuser && \
+    chown -R tempuser:tempuser /usr/src/app && \
+    # Add these lines to create and set permissions for outputs directory
     mkdir -p /usr/src/app/outputs && \
-    chown -R choreo:choreo /usr/src/app/outputs && \
-    chmod 777 /usr/src/app/outputs
+    chown -R tempuser:tempuser /usr/src/app/outputs && \
+    chmod 777 /usr/src/app/outputs && \
+    # Create logs directory and set permissions
+    mkdir -p /usr/src/app/logs && \
+    chown -R tempuser:tempuser /usr/src/app/logs && \
+    chmod 777 /usr/src/app/logs
 
-# Use the above-created unprivileged user
+# Switch to the user with UID 10014
 USER 10014
-
 WORKDIR /usr/src/app
 
 # Copy the rest of the application files with proper ownership
-# Copy the rest of the application files with proper ownership
-COPY --chown=choreo:choreo ./ ./
+COPY --chown=tempuser:tempuser ./ ./
 
 # Expose the application's port
 EXPOSE 8000
