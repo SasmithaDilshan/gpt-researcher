@@ -1,11 +1,15 @@
 FROM node:18.17.0-alpine
 
 WORKDIR /app
+<<<<<<< HEAD
+COPY package.json package-lock.json ./
+=======
 
 # Set npm cache directory inside /app
 ENV NPM_CONFIG_CACHE=/app/.npm
 
 COPY ./package.json ./
+>>>>>>> 18f82031d5d7fa8ec2ec996e727b65fd13a72bd3
 RUN npm install --legacy-peer-deps
 COPY . .
 
