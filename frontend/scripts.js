@@ -44,7 +44,7 @@ const GPTResearcher = (() => {
       protocol === 'https:' ? 'wss:' : 'ws:'
     }//${host}${pathname}ws`
     const converter = new showdown.Converter()
-    const url = "wss://"+serviceURL+"/ws"
+    const url = "wss://"+serviceURL+"ws"
     const socket = new WebSocket(url)
 
     socket.onmessage = (event) => {
