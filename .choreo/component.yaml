@@ -1,0 +1,13 @@
+schemaVersion: "1.1"
+endpoints:
+    - name: gpt-researcher-endpoint
+      displayName: gpt-researcher-endpoint
+        basePath: /
+        port: 8000
+      type: REST
+      networkVisibilities:
+        - Public
+dependencies:
+    connectionReferences:
+    - name: gpt reseacher
+      resourceRef: service:/prism/gptresearcherbackend/v1/be2b5/PUBLIC
