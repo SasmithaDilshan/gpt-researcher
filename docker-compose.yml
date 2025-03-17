@@ -12,6 +12,7 @@ services:
     ports:
       - 3000:3000
 
+<<<<<<< HEAD
       
   # gptr-nextjs:
   #   pull_policy: build
@@ -33,6 +34,8 @@ services:
   #   ports:
   #     - 3000:3000
 
+=======
+>>>>>>> 18f82031d5d7fa8ec2ec996e727b65fd13a72bd3
   # gpt-researcher-tests:
   #   image: gptresearcher/gpt-researcher-tests
   #   build: ./
