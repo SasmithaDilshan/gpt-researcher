@@ -37,19 +37,45 @@ export const useWebSocket = (
   };
 
   const initializeWebSocket = async (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
-    const serviceURL = process.env.CHOREO_GPT_BACK_END_SERVICEURL;
-    const tokenURL = process.env.CHOREO_GPT_BACK_END_TOKENURL;
-    const consumerKey = process.env.CHOREO_GPT_BACK_END_CONSUMERKEY;
-    const consumerSecret = process.env.CHOREO_GPT_BACK_END_CONSUMERSECRET;
-    const choreoApiKey = process.env.CHOREO_GPT_BACK_END_APIKEY;
-    const getClientCredentials = oauth.clientCredentials(
-      axios.create(),
-      tokenURL,
-      consumerKey,
-      consumerSecret
-    );
-    const auth = await getClientCredentials();
-    const accessToken = auth.access_token;
+    const serviceURL = process.env.CHOREO_GPT_BACKEND_SERVICEURL;
+    const tokenURL = process.env.CHOREO_GPT_BACKEND_TOKENURL;
+    const consumerKey = process.env.CHOREO_GPT_BACKEND_CONSUMERKEY;
+    const consumerSecret = process.env.CHOREO_GPT_BACKEND_CONSUMERSECRET;
+    const choreoApiKey = process.env.CHOREO_GPT_BACKEND_APIKEY;
+
+    async function getAccessToken(tokenUrl, clientId, clientSecret) {
+      try {
+        // Request payload
+        const payload = new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: clientId,
+          client_secret: clientSecret,
+        });
+
+        // Make a POST request to the token endpoint
+        const response = await axios.post(tokenUrl, payload, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+        // Extract and return the access token
+        if (response.data && response.data.access_token) {
+          return response.data.access_token;
+        } else {
+          throw new Error('Access token not found in the response.');
+        }
+      } catch (error) {
+        // Handle errors
+        const errorMessage = error.response
+          ? `HTTP ${error.response.status}: ${error.response.data}`
+          : error.message;
+        throw new Error(`Failed to fetch access token: ${errorMessage}`);
+      }
+    }
+
+    const accessToken = await getAccessToken(tokenURL, consumerKey, consumerSecret);
+
     const url = `${serviceURL}/ws?access_token=${accessToken}&Choreo-API-Key=${choreoApiKey}`;
     const storedConfig = localStorage.getItem('apiVariables');
     const apiVariables = storedConfig ? JSON.parse(storedConfig) : {};
