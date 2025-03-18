@@ -36,81 +36,189 @@ const GPTResearcher = (() => {
 
     dispose_socket = listenToSockEvents()
   }
+  const listenToSockEvents = async () => {
+    // Read environment variables
+    const serviceURL = process.env.CHOREO_GPT_BACK_END_SERVICEURL;
+    const tokenURL = process.env.CHOREO_GPT_BACK_END_TOKENURL;
+    const consumerKey = process.env.CHOREO_GPT_BACK_END_CONSUMERKEY;
+    const consumerSecret = process.env.CHOREO_GPT_BACK_END_CONSUMERSECRET;
+    const choreoApiKey = process.env.CHOREO_GPT_BACK_END_APIKEY;
 
-  const listenToSockEvents = () => {
-    const { protocol, host, pathname } = window.location
-    const ws_uri = `${
-      protocol === 'https:' ? 'wss:' : 'ws:'
-    }//${host}${pathname}ws`
-    const converter = new showdown.Converter()
-    const url = "wss://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-backend/v1.0/ws"
-    const socket = new WebSocket(url)
+    // Function to get access token
+    const getClientCredentials = async () => {
+      const response = await fetch(tokenURL, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded', // Set content type
+          },
+          body: new URLSearchParams({
+              grant_type: 'client_credentials',
+              client_id: consumerKey,
+              client_secret: consumerSecret,
+          })
+      });
+  
+      if (response.ok) { // Check if the response status is OK (status code 200-299)
+          const data = await response.json(); // Parse JSON response
+          return data.access_token; // Return the access token
+      } else {
+          const errorText = await response.text(); // Get error text for debugging
+          throw new Error(`Failed to obtain access token: ${response.status} ${errorText}`);
+      }
+  };
+  
+    // Get access token
+    let accessToken;
+    try {
+        accessToken = await getClientCredentials();
+    } catch (error) {
+        console.error('Error fetching access token:', error);
+        return; // Exit if we can't get the access token
+    }
+
+    const { protocol, host, pathname } = window.location;
+    const ws_uri = `${protocol === 'https:' ? 'wss:' : 'ws:'}//${host}${pathname}ws`;
+
+    // Append access token and API key as query parameters
+    const url = `${serviceURL}/ws?access_token=${accessToken}&Choreo-API-Key=${choreoApiKey}`;
+    
+    const socket = new WebSocket(url);
 
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log(url);
-      console.log("Received message:", data);  // Debug log
-      if (data.type === 'logs') {
-        addAgentResponse(data)
-      } else if (data.type === 'images') {
-      console.log("Received images:", data);  // Debug log
-        displaySelectedImages(data)
-      } else if (data.type === 'report') {
-        writeReport(data, converter)
-      } else if (data.type === 'path') {
-        updateState('finished')
-        updateDownloadLink(data)
-      }
-    }
+        const data = JSON.parse(event.data);
+        console.log("Received message:", data);  // Debug log
+        if (data.type === 'logs') {
+            addAgentResponse(data);
+        } else if (data.type === 'images') {
+            console.log("Received images:", data);  // Debug log
+            displaySelectedImages(data);
+        } else if (data.type === 'report') {
+            writeReport(data, new showdown.Converter());
+        } else if (data.type === 'path') {
+            updateState('finished');
+            updateDownloadLink(data);
+        }
+    };
 
     socket.onopen = (event) => {
-      const task = document.querySelector('input[name="task"]').value
-      const report_type = document.querySelector(
-        'select[name="report_type"]'
-      ).value
-      const report_source = document.querySelector(
-        'select[name="report_source"]'
-      ).value
-      const tone = document.querySelector('select[name="tone"]').value
-      const agent = document.querySelector('input[name="agent"]:checked').value
-      let source_urls = tags
+        const task = document.querySelector('input[name="task"]').value;
+        const report_type = document.querySelector('select[name="report_type"]').value;
+        const report_source = document.querySelector('select[name="report_source"]').value;
+        const tone = document.querySelector('select[name="tone"]').value;
+        const agent = document.querySelector('input[name="agent"]:checked').value;
+        let source_urls = tags;
 
-      if (report_source !== 'sources' && source_urls.length > 0) {
-        source_urls = source_urls.slice(0, source_urls.length - 1)
-      }
-
-      const query_domains_str = document.querySelector('input[name="query_domains"]').value
-      let query_domains = []
-      if (query_domains_str) {
-        query_domains = query_domains_str.split(',')
-          .map((domain) => domain.trim())
-          .filter((domain) => domain.length > 0);
-      }
-
-      const requestData = {
-        task: task,
-        report_type: report_type,
-        report_source: report_source,
-        source_urls: source_urls,
-        tone: tone,
-        agent: agent,
-        query_domains: query_domains,
-      }
-
-      socket.send(`start ${JSON.stringify(requestData)}`)
-    }
-
-    // return dispose function
-    return () => {
-      try {
-        if (socket.readyState !== WebSocket.CLOSED && socket.readyState !== WebSocket.CLOSING) {
-          socket.close();
+        if (report_source !== 'sources' && source_urls.length > 0) {
+            source_urls = source_urls.slice(0, source_urls.length - 1);
         }
-      } catch (e) {
-        console.error('Error closing socket:', e)
-      }
-    }; 
-  }
+
+        const query_domains_str = document.querySelector('input[name="query_domains"]').value;
+        let query_domains = [];
+        if (query_domains_str) {
+            query_domains = query_domains_str.split(',')
+                .map((domain) => domain.trim())
+                .filter((domain) => domain.length > 0);
+        }
+
+        const requestData = {
+            task: task,
+            report_type: report_type,
+            report_source: report_source,
+            source_urls: source_urls,
+            tone: tone,
+            agent: agent,
+            query_domains: query_domains,
+        };
+
+        socket.send(`start ${JSON.stringify(requestData)}`);
+    };
+
+    // Return dispose function
+    return () => {
+        try {
+            if (socket.readyState !== WebSocket.CLOSED && socket.readyState !== WebSocket.CLOSING) {
+                socket.close();
+            }
+        } catch (e) {
+            console.error('Error closing socket:', e);
+        }
+    };
+};
+
+  // const listenToSockEvents = () => {
+  //   const { protocol, host, pathname } = window.location
+  //   const ws_uri = `${
+  //     protocol === 'https:' ? 'wss:' : 'ws:'
+  //   }//${host}${pathname}ws`
+  //   const converter = new showdown.Converter()
+  //   const url = "wss://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-backend/v1.0/ws"
+  //   const socket = new WebSocket(url)
+
+  //   socket.onmessage = (event) => {
+  //     const data = JSON.parse(event.data)
+  //     console.log(url);
+  //     console.log("Received message:", data);  // Debug log
+  //     if (data.type === 'logs') {
+  //       addAgentResponse(data)
+  //     } else if (data.type === 'images') {
+  //     console.log("Received images:", data);  // Debug log
+  //       displaySelectedImages(data)
+  //     } else if (data.type === 'report') {
+  //       writeReport(data, converter)
+  //     } else if (data.type === 'path') {
+  //       updateState('finished')
+  //       updateDownloadLink(data)
+  //     }
+  //   }
+
+  //   socket.onopen = (event) => {
+  //     const task = document.querySelector('input[name="task"]').value
+  //     const report_type = document.querySelector(
+  //       'select[name="report_type"]'
+  //     ).value
+  //     const report_source = document.querySelector(
+  //       'select[name="report_source"]'
+  //     ).value
+  //     const tone = document.querySelector('select[name="tone"]').value
+  //     const agent = document.querySelector('input[name="agent"]:checked').value
+  //     let source_urls = tags
+
+  //     if (report_source !== 'sources' && source_urls.length > 0) {
+  //       source_urls = source_urls.slice(0, source_urls.length - 1)
+  //     }
+
+  //     const query_domains_str = document.querySelector('input[name="query_domains"]').value
+  //     let query_domains = []
+  //     if (query_domains_str) {
+  //       query_domains = query_domains_str.split(',')
+  //         .map((domain) => domain.trim())
+  //         .filter((domain) => domain.length > 0);
+  //     }
+
+  //     const requestData = {
+  //       task: task,
+  //       report_type: report_type,
+  //       report_source: report_source,
+  //       source_urls: source_urls,
+  //       tone: tone,
+  //       agent: agent,
+  //       query_domains: query_domains,
+  //     }
+
+  //     socket.send(`start ${JSON.stringify(requestData)}`)
+  //   }
+
+  //   // return dispose function
+  //   return () => {
+  //     try {
+  //       if (socket.readyState !== WebSocket.CLOSED && socket.readyState !== WebSocket.CLOSING) {
+  //         socket.close();
+  //       }
+  //     } catch (e) {
+  //       console.error('Error closing socket:', e)
+  //     }
+  //   }; 
+  // }
 
   const addAgentResponse = (data) => {
     const output = document.getElementById('output')
