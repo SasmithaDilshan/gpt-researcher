@@ -43,12 +43,12 @@ const GPTResearcher = (() => {
       protocol === 'https:' ? 'wss:' : 'ws:'
     }//${host}${pathname}ws`
     const converter = new showdown.Converter()
-    console.log(ws_uri)
-    const socket = new WebSocket(ws_uri)
+    const url = "wss://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-backend/v1.0/ws"
+    const socket = new WebSocket(url)
 
     socket.onmessage = (event) => {
       const data = JSON.parse(event.data)
-      console.log(ws_uri);
+      console.log(url);
       console.log("Received message:", data);  // Debug log
       if (data.type === 'logs') {
         addAgentResponse(data)
