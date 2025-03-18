@@ -42,34 +42,38 @@ export const useWebSocket = (
     const consumerSecret = process.env.CHOREO_GPT_BACKEND_CONSUMERSECRET;
     const choreoApiKey = process.env.CHOREO_GPT_BACKEND_APIKEY;
 
-    async function getAccessToken(tokenUrl, clientId, clientSecret) {
+    interface AccessTokenResponse {
+      access_token: string;
+    }
+
+    async function getAccessToken(tokenUrl: string, clientId: string, clientSecret: string): Promise<string> {
       try {
-        // Request payload
-        const payload = new URLSearchParams({
-          grant_type: 'client_credentials',
-          client_id: clientId,
-          client_secret: clientSecret,
-        });
+      // Request payload
+      const payload = new URLSearchParams({
+        grant_type: 'client_credentials',
+        client_id: clientId,
+        client_secret: clientSecret,
+      });
 
-        // Make a POST request to the token endpoint
-        const response = await axios.post(tokenUrl, payload, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        });
+      // Make a POST request to the token endpoint
+      const response = await axios.post<AccessTokenResponse>(tokenUrl, payload, {
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
 
-        // Extract and return the access token
-        if (response.data && response.data.access_token) {
-          return response.data.access_token;
-        } else {
-          throw new Error('Access token not found in the response.');
-        }
-      } catch (error) {
-        // Handle errors
-        const errorMessage = error.response
-          ? `HTTP ${error.response.status}: ${error.response.data}`
-          : error.message;
-        throw new Error(`Failed to fetch access token: ${errorMessage}`);
+      // Extract and return the access token
+      if (response.data && response.data.access_token) {
+        return response.data.access_token;
+      } else {
+        throw new Error('Access token not found in the response.');
+      }
+      } catch (error: any) {
+      // Handle errors
+      const errorMessage = error.response
+        ? `HTTP ${error.response.status}: ${error.response.data}`
+        : error.message;
+      throw new Error(`Failed to fetch access token: ${errorMessage}`);
       }
     }
 
