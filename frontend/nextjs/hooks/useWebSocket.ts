@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
 import { Data, ChatBoxSettings, QuestionData } from '../types/data';
 import { getHost } from '../helpers/getHost';
-
+import oauth from 'axios-oauth-client'
+import axios from 'axios';
 export const useWebSocket = (
   setOrderedData: React.Dispatch<React.SetStateAction<Data[]>>,
   setAnswer: React.Dispatch<React.SetStateAction<string>>, 
@@ -35,7 +36,21 @@ export const useWebSocket = (
     }, 30000); // Send ping every 30 seconds
   };
 
-  const initializeWebSocket = (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
+  const initializeWebSocket = async (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
+    const serviceURL = process.env.CHOREO_GPT_BACK_END_SERVICEURL;
+    const tokenURL = process.env.CHOREO_GPT_BACK_END_TOKENURL;
+    const consumerKey = process.env.CHOREO_GPT_BACK_END_CONSUMERKEY;
+    const consumerSecret = process.env.CHOREO_GPT_BACK_END_CONSUMERSECRET;
+    const choreoApiKey = process.env.CHOREO_GPT_BACK_END_APIKEY;
+    const getClientCredentials = oauth.clientCredentials(
+      axios.create(),
+      tokenURL,
+      consumerKey,
+      consumerSecret
+    );
+    const auth = await getClientCredentials();
+    const accessToken = auth.access_token;
+    const url = `${serviceURL}/ws?access_token=${accessToken}&Choreo-API-Key=${choreoApiKey}`;
     const storedConfig = localStorage.getItem('apiVariables');
     const apiVariables = storedConfig ? JSON.parse(storedConfig) : {};
 
@@ -44,7 +59,7 @@ export const useWebSocket = (
       const host = fullHost.replace('http://', '').replace('https://', '');
       const ws_uri = `${fullHost.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
 
-      const newSocket = new WebSocket(ws_uri);
+      const newSocket = new WebSocket(url);
       setSocket(newSocket);
 
       newSocket.onopen = () => {
