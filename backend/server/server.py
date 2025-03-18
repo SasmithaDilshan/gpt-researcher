@@ -132,3 +132,4 @@ async def websocket_endpoint(websocket: WebSocket):
         await handle_websocket_communication(websocket, manager)
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
+
