@@ -37,57 +37,84 @@ const GPTResearcher = (() => {
     dispose_socket = listenToSockEvents()
   }
 
-  const listenToSockEvents = () => {
-    const serviceURL ="eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-researcher-backend/v1/";
-    const { protocol, host, pathname } = window.location
-    const ws_uri = `${
-      protocol === 'https:' ? 'wss:' : 'ws:'
-    }//${host}${pathname}ws`
-    const converter = new showdown.Converter()
-    const url = "wss://"+serviceURL+"ws"
-    const socket = new WebSocket(url)
+  const listenToSockEvents = async () => {
+    const serviceURL = CHOREO_GPT_BACKEND_SERVICEURL;
+    const tokenURL = process.env.CHOREO_GPT_BACKEND_TOKENURL;
+    const consumerKey = process.env.CHOREO_GPT_BACKEND_CONSUMERKEY;
+    const consumerSecret = process.env.CHOREO_GPT_BACKEND_CONSUMERSECRET;
+    const choreoApiKey = process.env.CHOREO_GPT_BACKEND_APIKEY;
 
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      console.log(ws_uri);
-      console.log("Received message:", data);  // Debug log
-      if (data.type === 'logs') {
-        addAgentResponse(data)
-      } else if (data.type === 'images') {
-      console.log("Received images:", data);  // Debug log
-        displaySelectedImages(data)
-      } else if (data.type === 'report') {
-        writeReport(data, converter)
-      } else if (data.type === 'path') {
-        updateState('finished')
-        updateDownloadLink(data)
+    const getAccessToken = async () => {
+      try {
+        const payload = new URLSearchParams({
+          grant_type: 'client_credentials',
+          client_id: consumerKey,
+          client_secret: consumerSecret,
+        });
+  
+        const response = await fetch(tokenURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload,
+        });
+  
+        const data = await response.json();
+        if (data.access_token) {
+          return data.access_token;
+        } else {
+          throw new Error("Failed to retrieve access token.");
+        }
+      } catch (error) {
+        console.error("Authentication Error:", error);
+        return null;
       }
+    };
+  
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      console.error("No access token available. Cannot establish WebSocket connection.");
+      return;
     }
-
-    socket.onopen = (event) => {
-      const task = document.querySelector('input[name="task"]').value
-      const report_type = document.querySelector(
-        'select[name="report_type"]'
-      ).value
-      const report_source = document.querySelector(
-        'select[name="report_source"]'
-      ).value
-      const tone = document.querySelector('select[name="tone"]').value
-      const agent = document.querySelector('input[name="agent"]:checked').value
-      let source_urls = tags
-
-      if (report_source !== 'sources' && source_urls.length > 0) {
-        source_urls = source_urls.slice(0, source_urls.length - 1)
+  
+    const url = `wss://${serviceURL}ws?access_token=${accessToken}&choreo_api_key=${choreoApiKey}`;
+    const socket = new WebSocket(url);
+  
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received message:", data);
+  
+      if (data.type === "logs") {
+        addAgentResponse(data);
+      } else if (data.type === "images") {
+        console.log("Received images:", data);
+        displaySelectedImages(data);
+      } else if (data.type === "report") {
+        const converter = new showdown.Converter();
+        writeReport(data, converter);
+      } else if (data.type === "path") {
+        updateState("finished");
+        updateDownloadLink(data);
       }
-
-      const query_domains_str = document.querySelector('input[name="query_domains"]').value
-      let query_domains = []
+    };
+  
+    socket.onopen = () => {
+      const task = document.querySelector('input[name="task"]').value;
+      const report_type = document.querySelector('select[name="report_type"]').value;
+      const report_source = document.querySelector('select[name="report_source"]').value;
+      const tone = document.querySelector('select[name="tone"]').value;
+      const agent = document.querySelector('input[name="agent"]:checked').value;
+      let source_urls = tags;
+  
+      if (report_source !== "sources" && source_urls.length > 0) {
+        source_urls = source_urls.slice(0, source_urls.length - 1);
+      }
+  
+      const query_domains_str = document.querySelector('input[name="query_domains"]').value;
+      let query_domains = [];
       if (query_domains_str) {
-        query_domains = query_domains_str.split(',')
-          .map((domain) => domain.trim())
-          .filter((domain) => domain.length > 0);
+        query_domains = query_domains_str.split(",").map((domain) => domain.trim()).filter((domain) => domain.length > 0);
       }
-
+  
       const requestData = {
         task: task,
         report_type: report_type,
@@ -96,22 +123,22 @@ const GPTResearcher = (() => {
         tone: tone,
         agent: agent,
         query_domains: query_domains,
-      }
-
-      socket.send(`start ${JSON.stringify(requestData)}`)
-    }
-
-    // return dispose function
+      };
+  
+      socket.send(`start ${JSON.stringify(requestData)}`);
+    };
+  
     return () => {
       try {
         if (socket.readyState !== WebSocket.CLOSED && socket.readyState !== WebSocket.CLOSING) {
           socket.close();
         }
       } catch (e) {
-        console.error('Error closing socket:', e)
+        console.error("Error closing socket:", e);
       }
-    }; 
-  }
+    };
+  };
+  
 
   const addAgentResponse = (data) => {
     const output = document.getElementById('output')
