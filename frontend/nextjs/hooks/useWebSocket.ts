@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Data, ChatBoxSettings, QuestionData } from '../types/data';
 import { getHost } from '../helpers/getHost';
-import oauth from 'axios-oauth-client'
 import axios from 'axios';
 export const useWebSocket = (
   setOrderedData: React.Dispatch<React.SetStateAction<Data[]>>,
