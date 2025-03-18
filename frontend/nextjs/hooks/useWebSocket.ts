@@ -90,7 +90,7 @@ export const useWebSocket = (
       const fullHost = getHost();
       const host = fullHost.replace('http://', '').replace('https://', '');
       const ws_uri = `${fullHost.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
-
+      console.log(url);
       const newSocket = new WebSocket(url);
       setSocket(newSocket);
 

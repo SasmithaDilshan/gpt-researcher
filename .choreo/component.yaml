@@ -26,5 +26,5 @@ endpoints:
     schemaFilePath: asyncapi.yaml
 dependencies:
     connectionReferences:
-    - name: gpt back end
+    - name: gpt backend
       resourceRef: service:/prism/gpt-backend/v1/5edba/PUBLIC
