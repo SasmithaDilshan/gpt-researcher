@@ -42,61 +42,21 @@ channels:
               description: Parameters for the command
               additionalProperties: true
 
-  servers:
-    local:
-      url: http://0.0.0.0:9000
-      protocol: ws
-    http:
-      url: http://0.0.0.0:8000
-      protocol: http
-  
-  channels:
-    /ws:
-      description: WebSocket communication for research execution
-      subscribe:
-        summary: Receive messages from the server
-        message:
-          contentType: application/json
-          payload:
-            type: object
-            properties:
-              type:
-                type: string
-                description: Type of message (e.g., "update", "error", "result")
-              data:
-                type: string
-                description: Message content or response data
-      publish:
-        summary: Send messages to the server
-        message:
-          contentType: application/json
-          payload:
-            type: object
-            properties:
-              command:
-                type: string
-                description: The command sent to the WebSocket (e.g., "start", "stop", "status")
-              params:
+  /api/multi_agents:
+    post:
+      summary: Execute multi-agent research
+      operationId: executeMultiAgents
+      responses:
+        '200':
+          description: Multi-agent execution started successfully
+          content:
+            application/json:
+              schema:
                 type: object
-                description: Parameters for the command
-                additionalProperties: true
-  
-  paths:
-    /api/multi_agents:
-      post:
-        summary: Execute multi-agent research
-        operationId: executeMultiAgents
-        responses:
-          '200':
-            description: Multi-agent execution started successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    status:
-                      type: string
-                      example: "started"
+                properties:
+                  status:
+                    type: string
+                    example: "started"
 
   /upload/:
     post:
