@@ -66,9 +66,9 @@ class ConfigRequest(BaseModel):
 app = FastAPI()
 
 # Static files and templates
-app.mount("/site", StaticFiles(directory="./frontend"), name="site")
-app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
-templates = Jinja2Templates(directory="./frontend")
+app.mount("/site", StaticFiles(directory="backend/frontend"), name="site")
+app.mount("/static", StaticFiles(directory="backend/frontend/static"), name="static")
+templates = Jinja2Templates(directory="backend/frontend")
 
 # WebSocket manager
 manager = WebSocketManager()
