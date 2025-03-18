@@ -77,6 +77,9 @@ export const useWebSocket = (
       }
     }
 
+    if (!tokenURL || !consumerKey || !consumerSecret) {
+      throw new Error('Missing required environment variables for authentication.');
+    }
     const accessToken = await getAccessToken(tokenURL, consumerKey, consumerSecret);
 
     const url = `${serviceURL}/ws?access_token=${accessToken}&Choreo-API-Key=${choreoApiKey}`;
