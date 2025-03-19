@@ -12,7 +12,7 @@ export const getHost = async ({ purpose }: GetHostParams = {}): Promise<string> 
    console.log('Inside getHost - choreoApiKey:', choreoApiKey);
   
    const channelName = 'ws'; // Replace with actual channel name
-   const wsURL= `${serviceURL}/${channelName}?api_key=${choreoApiKey}`
+   const wsURL= `${serviceURL}${channelName}?api_key=${choreoApiKey}`
 
   // if (typeof window !== 'undefined') {
   //   let { host } = window.location;

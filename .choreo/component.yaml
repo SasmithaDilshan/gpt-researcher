@@ -28,5 +28,3 @@ dependencies:
     connectionReferences:
     - name: gpt backend
       resourceRef: service:/prism/gpt-backend/v1/5edba/PROJECT
-
- 
