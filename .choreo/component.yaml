@@ -24,7 +24,3 @@ endpoints:
     # This is only applicable to REST endpoint types.
     # The path should be relative to the docker context.
     schemaFilePath: asyncapi.yaml
-dependencies:
-    connectionReferences:
-    - name: gpt researcher backend
-      resourceRef: service:/prism/gpt-researcher-backend/v1/5edba/PROJECT
