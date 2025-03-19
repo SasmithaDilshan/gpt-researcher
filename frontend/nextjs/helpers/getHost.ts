@@ -5,8 +5,8 @@ interface GetHostParams {
 
 
 export const getHost = async ({ purpose }: GetHostParams = {}): Promise<string> => {
-  const serviceURL: string = process.env.CHOREO_GPT_RESEARCHER_BACKEND_SERVICEURL || '';
-  const choreoApiKey: string = process.env.CHOREO_GPT_RESEARCHER_BACKEND_CHOREOAPIKEY || '';
+  const serviceURL: string = process.env.CHOREO_GPT_RESEARCHER_SERVICEURL || '';
+  const choreoApiKey: string = process.env.CHOREO_GPT_RESEARCHER_CHOREOAPIKEY || '';
    // Logging inside the function to debug
    console.log('Inside getHost - serviceURL:', serviceURL);
    console.log('Inside getHost - choreoApiKey:', choreoApiKey);
