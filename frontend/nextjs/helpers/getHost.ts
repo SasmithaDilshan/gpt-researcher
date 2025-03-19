@@ -11,7 +11,7 @@ export const getHost = async ({ purpose }: GetHostParams = {}): Promise<string> 
   console.log('Inside getHost - choreoApiKey:', choreoApiKey);
   
   const channelName = 'ws';
-  const wsURL =`${serviceURL}${channelName}?api_key=${choreoApiKey}`;
+  const wsURL ="ws://gpt-researcher-backend-3418791020:8000/ws?api_key=chk_eyJjb25uZWN0aW9uLWlkIjoiMDFmMDA0ZGItOWVmOS0xYjgwLWIyOTYtZDFkZTllMTdjMTE2In0=cxm3RA";
   console.log('wsURL', wsURL);
   return wsURL;
 };

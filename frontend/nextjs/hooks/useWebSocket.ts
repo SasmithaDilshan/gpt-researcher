@@ -49,6 +49,7 @@ export const useWebSocket = (
       console.log('Inside getHost - choreoApiKey:', choreoApiKey);
   
       const newSocket = new WebSocket(fullHost);
+      console.log('newSocket', newSocket);
       
       setSocket(newSocket);
 
