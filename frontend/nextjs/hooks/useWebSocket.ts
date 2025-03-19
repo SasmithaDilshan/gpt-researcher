@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { Data, ChatBoxSettings, QuestionData } from '../types/data';
 import { getHost } from '../helpers/getHost';
-import axios from 'axios';
+
 export const useWebSocket = (
   setOrderedData: React.Dispatch<React.SetStateAction<Data[]>>,
   setAnswer: React.Dispatch<React.SetStateAction<string>>, 
@@ -35,64 +35,73 @@ export const useWebSocket = (
     }, 30000); // Send ping every 30 seconds
   };
 
-  const initializeWebSocket = async (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
-    const serviceURL = process.env.CHOREO_GPT_BACKEND_SERVICEURL;
-    const tokenURL = process.env.CHOREO_GPT_BACKEND_TOKENURL;
-    const consumerKey = process.env.CHOREO_GPT_BACKEND_CONSUMERKEY;
-    const consumerSecret = process.env.CHOREO_GPT_BACKEND_CONSUMERSECRET;
-    const choreoApiKey = process.env.CHOREO_GPT_BACKEND_APIKEY;
-
-    interface AccessTokenResponse {
-      access_token: string;
-    }
-
-    async function getAccessToken(tokenUrl: string, clientId: string, clientSecret: string): Promise<string> {
-      try {
-      // Request payload
-      const payload = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-      });
-
-      // Make a POST request to the token endpoint
-      const response = await axios.post<AccessTokenResponse>(tokenUrl, payload, {
-        headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
-
-      // Extract and return the access token
-      if (response.data && response.data.access_token) {
-        return response.data.access_token;
-      } else {
-        throw new Error('Access token not found in the response.');
-      }
-      } catch (error: any) {
-      // Handle errors
-      const errorMessage = error.response
-        ? `HTTP ${error.response.status}: ${error.response.data}`
-        : error.message;
-      throw new Error(`Failed to fetch access token: ${errorMessage}`);
-      }
-    }
-
-    if (!tokenURL || !consumerKey || !consumerSecret) {
-      throw new Error('Missing required environment variables for authentication.');
-    }
-    const accessToken = await getAccessToken(tokenURL, consumerKey, consumerSecret);
-
-    const url = `${serviceURL}/ws?access_token=${accessToken}&Choreo-API-Key=${choreoApiKey}`;
+  const initializeWebSocket = (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
     const storedConfig = localStorage.getItem('apiVariables');
     const apiVariables = storedConfig ? JSON.parse(storedConfig) : {};
 
     if (!socket && typeof window !== 'undefined') {
-      const fullHost = getHost();
-      const host = fullHost.replace('http://', '').replace('https://', '');
-      const ws_uri = `${fullHost.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
-      console.log(url);
-      const newSocket = new WebSocket(url);
-      setSocket(newSocket);
+      getHost().then((fullHost) => {
+        const host = fullHost.replace('http://', '').replace('https://', '');
+        const ws_uri = `${fullHost.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
+
+        const newSocket = new WebSocket(fullHost);
+        setSocket(newSocket);
+
+        newSocket.onopen = () => {
+          console.log('chatBoxSettings', chatBoxSettings);
+          const domainFilters = JSON.parse(localStorage.getItem('domainFilters') || '[]');
+          const domains = domainFilters ? domainFilters.map((domain: any) => domain.value) : [];
+          const { report_type, report_source, tone } = chatBoxSettings;
+          let data = "start " + JSON.stringify({ 
+            task: promptValue,
+            report_type, 
+            report_source, 
+            tone,
+            query_domains: domains
+          });
+          newSocket.send(data);
+          startHeartbeat(newSocket);
+        };
+
+        newSocket.onmessage = (event) => {
+          try {
+            // Handle ping response
+            if (event.data === 'pong') return;
+
+            // Try to parse JSON data
+            const data = JSON.parse(event.data);
+            if (data.type === 'human_feedback' && data.content === 'request') {
+              setQuestionForHuman(data.output);
+              setShowHumanFeedback(true);
+            } else {
+              const contentAndType = `${data.content}-${data.type}`;
+              setOrderedData((prevOrder) => [...prevOrder, { ...data, contentAndType }]);
+
+              if (data.type === 'report') {
+                setAnswer((prev: string) => prev + data.output);
+              } else if (data.type === 'path' || data.type === 'chat') {
+                setLoading(false);
+              }
+            }
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error, event.data);
+          }
+        };
+
+        newSocket.onclose = () => {
+          if (heartbeatInterval.current) {
+            clearInterval(heartbeatInterval.current);
+          }
+          setSocket(null);
+        };
+
+        newSocket.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          if (heartbeatInterval.current) {
+            clearInterval(heartbeatInterval.current);
+          }
+        };
+      });
 
       newSocket.onopen = () => {
         console.log('chatBoxSettings', chatBoxSettings);
