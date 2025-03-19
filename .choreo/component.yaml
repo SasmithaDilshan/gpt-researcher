@@ -4,7 +4,7 @@ schemaVersion: 1.1
 endpoints:
   # +required Unique name for the endpoint.
   # This name will be used when generating the managed API
-  - name: gpt researcher backend
+  - name: gpt_researcher_backend
     # +optional Display name for the endpoint.
     displayName: gpt researcher backend
     # +required Service section has the user service endpoint details
