@@ -44,8 +44,8 @@ export const useWebSocket = (
     if (!socket && typeof window !== 'undefined') {
       const fullHost = await getHost(); 
       
-      const serviceURL: string = process.env.CHOREO_GPT_BACKEND_SERVICEURL || '';
-      const choreoApiKey: string = process.env.CHOREO_GPT_BACKEND_APIKEY || '';
+      const serviceURL: string = process.env.CHOREO_GPT_RESEARCHER_BACKEND_SERVICEURL || '';
+      const choreoApiKey: string = process.env.CHOREO_GPT_RESEARCHER_BACKEND_CHOREOAPIKEY || '';
     
       // Logging inside the function to debug
       console.log('Inside getHost - serviceURL:', serviceURL);
