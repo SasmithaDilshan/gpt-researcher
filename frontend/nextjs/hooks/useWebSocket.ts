@@ -38,21 +38,17 @@ export const useWebSocket = (
 
   const initializeWebSocket = async (promptValue: string, chatBoxSettings: ChatBoxSettings) => {
     
-    const storedConfig = localStorage.getItem('apiVariables');
-    const apiVariables = storedConfig ? JSON.parse(storedConfig) : {};
-
+  
     if (!socket && typeof window !== 'undefined') {
       const fullHost = await getHost(); 
       
       const serviceURL: string = process.env.CHOREO_GPT_RESEARCHER_SERVICEURL || '';
       const choreoApiKey: string = process.env.CHOREO_GPT_RESEARCHER_CHOREOAPIKEY || '';
-    
-      // Logging inside the function to debug
+
       console.log('Inside getHost - serviceURL:', serviceURL);
       console.log('Inside getHost - choreoApiKey:', choreoApiKey);
-     
-      const channelName = 'ws'; // Replace with actual channel name
-      const newSocket = new WebSocket(`${serviceURL}/${channelName}?api_key=${choreoApiKey}`);
+  
+      const newSocket = new WebSocket(fullHost);
       
       setSocket(newSocket);
 
