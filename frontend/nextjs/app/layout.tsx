@@ -46,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <PlausibleProvider domain={process.env.NEXT_PUBLIC_DOMAIN!} />
+        <PlausibleProvider domain={process.env.CHOREO_GPT_RESEARCHER_BACKEND_SERVICEURL!} />
         <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID!} />
       </head>
       <body
