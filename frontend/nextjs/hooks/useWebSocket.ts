@@ -42,9 +42,8 @@ export const useWebSocket = (
     const apiVariables = storedConfig ? JSON.parse(storedConfig) : {};
 
     if (!socket && typeof window !== 'undefined') {
-      const fullHost = await getHost(); // Await the promise to get the actual string value
-      // const host = fullHost.replace('http://', '').replace('https://', '');
-      // const ws_uri = `${fullHost.includes('https') ? 'wss:' : 'ws:'}//${host}/ws`;
+      const fullHost = await getHost(); 
+      
       const serviceURL: string = process.env.CHOREO_GPT_BACKEND_SERVICEURL || '';
       const choreoApiKey: string = process.env.CHOREO_GPT_BACKEND_APIKEY || '';
     
