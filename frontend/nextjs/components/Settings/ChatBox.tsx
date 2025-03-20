@@ -31,8 +31,8 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      getHost().then(fullHost => {
-        const newSocket = new WebSocket(fullHost);
+      getHost().then(({ ws, headers }) => {
+        const newSocket = ws;
         setSocket(newSocket);
 
         newSocket.onmessage = (event) => {

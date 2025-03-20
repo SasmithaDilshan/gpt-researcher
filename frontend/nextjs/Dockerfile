@@ -4,8 +4,7 @@ WORKDIR /app
 
 # Set npm cache directory inside /app
 ENV NPM_CONFIG_CACHE=/app/.npm
-ENV CHOREO_GPT_RESEARCHER_CHOREOAPIKEY=chk_eyJjb25uZWN0aW9uLWlkIjoiMDFmMDA0ZGItOWVmOS0xYjgwLWIyOTYtZDFkZTllMTdjMTE2In0=cxm3RA
-ENV CHOREO_GPT_RESEARCHER_SERVICEURL=ws://gpt-researcher-backend-3418791020:8000/
+
 COPY ./package.json ./
 RUN npm install --legacy-peer-deps
 
