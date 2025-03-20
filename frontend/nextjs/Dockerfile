@@ -9,6 +9,7 @@ COPY ./package.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
+
 # Ensure correct ownership of necessary directories
 RUN mkdir -p /app/.npm /app/.next/cache/images /app/node_modules \
     && chown -R 10014:0 /app
