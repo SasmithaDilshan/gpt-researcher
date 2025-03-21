@@ -1,7 +1,7 @@
 .git
 
 # Ignore env containing secrets
-# .env
+.env
 .venv
 .envrc
 
