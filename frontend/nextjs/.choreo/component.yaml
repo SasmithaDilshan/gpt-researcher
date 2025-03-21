@@ -1,0 +1,4 @@
+dependencies:
+    connectionReferences:
+    - name: gpt researcher connection
+      resourceRef: service:/prism/gpt-researcher-backend/v1/5edba/PUBLIC
