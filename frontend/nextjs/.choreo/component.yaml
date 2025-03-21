@@ -1,8 +1,8 @@
 schemaVersion: "1.1"
 dependencies:
     serviceReferences:
-    - name: choreo:///sasorg/default/test-serv-ia/proxy/v1/PUBLIC
-      connectionConfig: 01f00639-d121-12c0-88c1-be32350e6f9f
+    - name: gpt researcher connection
+      resourceRef: service:/prism/gpt-researcher-backend/v1/5edba/PUBLIC
       env:
       - from: ServiceURL
         to: NEXT_PUBLIC_CHOREO_GPT_RESEARCHER_CONNECTION_SERVICEURL
