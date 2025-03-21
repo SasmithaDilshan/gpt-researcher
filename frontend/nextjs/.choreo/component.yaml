@@ -1,8 +1,8 @@
 schemaVersion: "1.1"
 dependencies:
     serviceReferences:
-    - name: gpt researcher connection
-      resourceRef: service:/prism/gpt-researcher-backend/v1/5edba/PUBLIC
+    - name: choreo:///btchoreotryout/prism/gpt-researcher-backend/5edba/v1/PUBLIC
+      connectionConfig: 01f0054c-a0af-1940-a3e1-74e231b6f5d0
       env:
       - from: ServiceURL
         to: NEXT_PUBLIC_CHOREO_GPT_RESEARCHER_CONNECTION_SERVICEURL
