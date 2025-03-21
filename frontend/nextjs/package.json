@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "start": "docker"
+    "start": "next start"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
