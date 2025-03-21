@@ -9,15 +9,12 @@ COPY ./package.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED 1
+
 # Ensure correct ownership of necessary directories
 RUN mkdir -p /app/.npm /app/.next/cache/images /app/node_modules \
     && chown -R 10014:0 /app
+
 RUN npm run build
-ENV NODE_ENV production
-
-ENV NEXT_TELEMETRY_DISABLED 1
-
 
 USER 10014
 
