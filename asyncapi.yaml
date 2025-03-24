@@ -1,6 +1,6 @@
 asyncapi: '2.0.0'
 info:
-  title: WebSocket API 
+  title: WebSocket API for Multi-Agent Research System
   version: '1.0.0'
   description: |
     This AsyncAPI specification defines a WebSocket API with endpoints for 
@@ -41,3 +41,114 @@ channels:
               type: object
               description: Parameters for the command
               additionalProperties: true
+
+  /api/multi_agents:
+    post:
+      summary: Execute multi-agent research
+      operationId: executeMultiAgents
+      responses:
+        '200':
+          description: Multi-agent execution started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "started"
+
+  /upload/:
+    post:
+      summary: Upload a file
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  filename:
+                    type: string
+                    example: "document.pdf"
+
+  /files/:
+    get:
+      summary: List available files
+      operationId: listFiles
+      responses:
+        '200':
+          description: List of available files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: string
+                    example: ["file1.txt", "report.pdf"]
+
+  /files/{filename}:
+    delete:
+      summary: Delete a specific file
+      operationId: deleteFile
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File deleted"
+
+components:
+  schemas:
+    WebSocketMessage:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "update"
+        data:
+          type: string
+          example: "Processing started"
+
+    MultiAgentRequest:
+      type: object
+      properties:
+        task:
+          type: string
+          example: "Summarize research papers"
+        agent:
+          type: string
+          example: "gpt-4"
+
+    FileUploadResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          example: "uploaded_file.txt"
