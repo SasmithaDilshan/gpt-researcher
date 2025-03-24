@@ -14,7 +14,7 @@ interface AccessReportProps {
 }
 
 const AccessReport: React.FC<AccessReportProps> = async ({ accessData, chatBoxSettings, report }) => {
-  const { ws, headers } = await getHost(); 
+  const host = window.location.origin;
 
   const getReportLink = (dataType: 'pdf' | 'docx' | 'json'): string => {
     // Early return if path is not available
@@ -35,7 +35,7 @@ const AccessReport: React.FC<AccessReportProps> = async ({ accessData, chatBoxSe
       ? cleanPath 
       : `outputs/${cleanPath}`;
     
-    return `${ws}/${finalPath}`;
+    return `${host}/${finalPath}`;
   };
 
   // Safety check for accessData
