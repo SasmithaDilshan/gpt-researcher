@@ -1,6 +1,6 @@
 asyncapi: '2.0.0'
 info:
-  title: WebSocket API for Multi-Agent Research System
+  title: WebSocket API 
   version: '1.0.0'
   description: |
     This AsyncAPI specification defines a WebSocket API with endpoints for 

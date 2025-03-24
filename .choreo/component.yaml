@@ -4,9 +4,9 @@ schemaVersion: 1.1
 endpoints:
   # +required Unique name for the endpoint.
   # This name will be used when generating the managed API
-  - name: gpt_researcher_backend
+  - name: gpt_researcher_backend_websocket
     # +optional Display name for the endpoint.
-    displayName: gpt researcher backend
+    displayName: gpt researcher backend websocket
     # +required Service section has the user service endpoint details
     service:
       # +optional Context (base path) of the API that gets exposed via the endpoint.
@@ -26,7 +26,7 @@ endpoints:
     schemaFilePath: asyncapi.yaml
   
   - name: gpt_researcher_backend_rest
-    displayName: gpt researcher backend
+    displayName: gpt researcher backend rest
     service:
       basePath: /
       port: 8000
