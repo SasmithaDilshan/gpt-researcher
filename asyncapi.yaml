@@ -19,39 +19,25 @@ channels:
       message:
         contentType: application/json
         payload:
-          $ref: '#/components/schemas/WebSocketMessage'
+          type: object
+          properties:
+            type:
+              type: string
+              description: Type of message (e.g., "update", "error", "result")
+            data:
+              type: string
+              description: Message content or response data
     publish:
       summary: Send messages to the server
       message:
         contentType: application/json
         payload:
-          $ref: '#/components/schemas/WebSocketCommand'
-
-components:
-  schemas:
-    WebSocketMessage:
-      type: object
-      properties:
-        type:
-          type: string
-          description: Type of message (e.g., "update", "error", "result")
-          example: "update"
-        data:
-          type: string
-          description: Message content or response data
-          example: "Processing started"
-
-    WebSocketCommand:
-      type: object
-      properties:
-        command:
-          type: string
-          description: The command sent to the WebSocket (e.g., "start", "stop", "status")
-          example: "start"
-        params:
           type: object
-          description: Parameters for the command
-          additionalProperties: true
-          example:
-            task: "Summarize research papers"
-            agent: "gpt-4"
+          properties:
+            command:
+              type: string
+              description: The command sent to the WebSocket (e.g., "start", "stop", "status")
+            params:
+              type: object
+              description: Parameters for the command
+              additionalProperties: true
