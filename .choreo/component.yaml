@@ -25,7 +25,7 @@ endpoints:
     # The path should be relative to the docker context.
     schemaFilePath: asyncapi.yaml
   
-  - name: gpt_researcher_backend
+  - name: gpt_researcher_backend_rest
     displayName: gpt researcher backend
     service:
       basePath: /
