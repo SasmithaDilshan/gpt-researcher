@@ -13,8 +13,8 @@ interface AccessReportProps {
   report: string;
 }
 
-const AccessReport: React.FC<AccessReportProps> = async ({ accessData, chatBoxSettings, report }) => {
-  const host = window.location.origin;
+const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings, report }) => {
+  const host = "https://7308d565-540f-40f3-90cd-ca2fc7c28c77.e1-us-east-azure.choreoapps.dev";
 
   const getReportLink = (dataType: 'pdf' | 'docx' | 'json'): string => {
     // Early return if path is not available
