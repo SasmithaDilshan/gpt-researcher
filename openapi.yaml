@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: Multi-Agent Research System API
+  version: '1.0.0'
+  description: |
+    This OpenAPI specification defines the REST API for research execution, 
+    file management, and other functionalities.
+
+servers:
+  - url: http://0.0.0.0:8000
+    description: Local server
+
+paths:
+  /api/multi_agents:
+    post:
+      summary: Execute multi-agent research
+      operationId: executeMultiAgents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiAgentRequest'
+      responses:
+        '200':
+          description: Multi-agent execution started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "started"
+
+  /upload/:
+    post:
+      summary: Upload a file
+      operationId: uploadFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+  /files/:
+    get:
+      summary: List available files
+      operationId: listFiles
+      responses:
+        '200':
+          description: List of available files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: string
+                    example: ["file1.txt", "report.pdf"]
+
+  /files/{filename}:
+    delete:
+      summary: Delete a specific file
+      operationId: deleteFile
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "File deleted"
+
+components:
+  schemas:
+    MultiAgentRequest:
+      type: object
+      properties:
+        task:
+          type: string
+          example: "Summarize research papers"
+        agent:
+          type: string
+          example: "gpt-4"
+
+    FileUploadResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          example: "uploaded_file.txt"

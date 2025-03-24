@@ -42,16 +42,7 @@ export const useWebSocket = (
     if (!socket && typeof window !== 'undefined') {
       const { ws, headers } = await getHost(); // Await the promise to get the actual WebSocket and headers
 
-      
-      
-      const serviceURL: string = process.env.CHOREO_GPT_RESEARCHER_SERVICEURL || '';
-      const choreoApiKey: string = process.env.CHOREO_GPT_RESEARCHER_CHOREOAPIKEY || '';
-
-      console.log('Inside getHost - serviceURL:', serviceURL);
-      console.log('Inside getHost - choreoApiKey:', choreoApiKey);
-  
       const newSocket = ws;
-      console.log('newSocket', newSocket);
       
       setSocket(newSocket);
 

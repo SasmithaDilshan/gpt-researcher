@@ -19,18 +19,12 @@ interface HostResponse {
 
 export const getHost = async ({ purpose }: GetHostParams = {}): Promise<HostResponse> => {
   const config = await fetch('/config.json').then((response) => response.json());
-  console.log(config);
   const getClientCredentials = clientCredentials(
     axios.create(),
     config.CHOREO_GPT_RESEARCHER_CONNECTION_TOKENURL,
     config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERKEY,
     config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERSECRET
   );
-
-  console.log(config.CHOREO_GPT_RESEARCHER_CONNECTION_SERVICEURL);
-  console.log(config.CHOREO_GPT_RESEARCHER_CONNECTION_TOKENURL);
-  console.log(config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERKEY);
-  console.log(config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERSECRET);
 
   const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
   const accessToken: string = auth.access_token;

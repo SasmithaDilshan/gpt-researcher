@@ -34,8 +34,6 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
       getHost().then(({ ws, headers }) => {
         const newSocket = ws;
         setSocket(newSocket);
-        console.log(typeof window);
-        console.log('newSocket', newSocket);
         newSocket.onmessage = (event) => {
           const data = JSON.parse(event.data) as WebSocketMessage;
           
