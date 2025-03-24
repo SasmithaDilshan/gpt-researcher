@@ -13,8 +13,8 @@ interface AccessReportProps {
   report: string;
 }
 
-const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings, report }) => {
-  const host = getHost();
+const AccessReport: React.FC<AccessReportProps> = async ({ accessData, chatBoxSettings, report }) => {
+  const { ws, headers } = await getHost(); 
 
   const getReportLink = (dataType: 'pdf' | 'docx' | 'json'): string => {
     // Early return if path is not available
@@ -35,7 +35,7 @@ const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings
       ? cleanPath 
       : `outputs/${cleanPath}`;
     
-    return `${host}/${finalPath}`;
+    return `${ws}/${finalPath}`;
   };
 
   // Safety check for accessData
