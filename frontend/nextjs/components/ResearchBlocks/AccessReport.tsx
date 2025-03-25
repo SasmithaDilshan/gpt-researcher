@@ -14,7 +14,7 @@ interface AccessReportProps {
 }
 
 const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings, report }) => {
-  const host = "https://7308d565-540f-40f3-90cd-ca2fc7c28c77.e1-us-east-azure.choreoapps.dev";
+  const host = "https://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-researcher-backend/gpt_researcher_backend/v1.0";
 
   const getReportLink = (dataType: 'pdf' | 'docx' | 'json'): string => {
     // Early return if path is not available
