@@ -103,27 +103,6 @@ paths:
                       type: string
                     example: ["file1.txt", "report.pdf"]
 
-  /files/{filename}:
-    delete:
-      summary: Delete a specific file
-      operationId: deleteFile
-      parameters:
-        - name: filename
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: File deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "File deleted"
 
 components:
   schemas:
