@@ -6,11 +6,11 @@ endpoints:
   # This name will be used when generating the managed API
   - name: gpt_researcher_backend_websocket
     # +optional Display name for the endpoint.
-    displayName: gpt researcher backend
+    displayName: gpt researcher backend websocket
     # +required Service section has the user service endpoint details
     service:
       # +optional Context (base path) of the API that gets exposed via the endpoint.
-      basePath: /
+      basePath: /ws
       # +required Numeric port value that gets exposed via the endpoint
       port: 8000
     # +required Type of traffic that the endpoint is accepting.
@@ -26,9 +26,9 @@ endpoints:
     schemaFilePath: asyncapi.yaml
   
   - name: gpt_researcher_backend_rest
-    displayName: gpt researcher backend
+    displayName: gpt researcher backend rest
     service:
-      basePath: /
+      basePath: /api/v1
       port: 9090
     type: REST
     networkVisibilities: 

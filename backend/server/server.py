@@ -1,82 +1,24 @@
-import json
-import os
-from typing import Dict, List
-
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, File, UploadFile, Header
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+import os
 
 from backend.server.websocket_manager import WebSocketManager
 from backend.server.server_utils import (
-    get_config_dict,
-    update_environment_variables, handle_file_upload, handle_file_deletion,
-    execute_multi_agents, handle_websocket_communication
+    handle_file_upload, handle_file_deletion, execute_multi_agents, handle_websocket_communication
 )
 
-import uvicorn
-from gpt_researcher.utils.logging_config import setup_research_logging
-
-import logging
-
-# Get logger instance
-logger = logging.getLogger(__name__)
-
-# Don't override parent logger settings
-logger.propagate = True
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler()  # Only log to console
-    ]
-)
-
-# Models
-
-
-class ResearchRequest(BaseModel):
-    task: str
-    report_type: str
-    agent: str
-
-
-class ConfigRequest(BaseModel):
-    ANTHROPIC_API_KEY: str
-    TAVILY_API_KEY: str
-    LANGCHAIN_TRACING_V2: str
-    LANGCHAIN_API_KEY: str
-    OPENAI_API_KEY: str
-    DOC_PATH: str
-    RETRIEVER: str
-    GOOGLE_API_KEY: str = ''
-    GOOGLE_CX_KEY: str = ''
-    BING_API_KEY: str = ''
-    SEARCHAPI_API_KEY: str = ''
-    SERPAPI_API_KEY: str = ''
-    SERPER_API_KEY: str = ''
-    SEARX_URL: str = ''
-    XAI_API_KEY: str
-    DEEPSEEK_API_KEY: str
-
-
-# App initialization
-app = FastAPI()
-
-# Static files and templates
-app.mount("/outputs", StaticFiles(directory="/usr/src/app/outputs"), name="outputs")
-app.mount("/site", StaticFiles(directory="./frontend"), name="site")
-app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
-templates = Jinja2Templates(directory="./frontend")
+# Separate FastAPI apps
+api_app = FastAPI()
+ws_app = FastAPI()
 
 # WebSocket manager
 manager = WebSocketManager()
 
-# Middleware
-app.add_middleware(
+# Middleware (Apply only to API, not WebSocket)
+api_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -84,59 +26,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Constants
-# DOC_PATH = os.getenv("DOC_PATH", "./my-docs")
+# Template rendering
+templates = Jinja2Templates(directory="./frontend")
 
-# Startup event
+# --- REST API Endpoints (Base Path: /api/v1) ---
 
-
-@app.on_event("startup")
-def startup_event():
-    os.makedirs("outputs", exist_ok=True)
-    app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
-    # os.makedirs(DOC_PATH, exist_ok=True)
-    
-
-# Routes
-
-
-@app.get("/")
+@api_app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "report": None})
 
-# Endpoint to serve files directly
-@app.get("/files/{filename}")
+@api_app.get("/files/{filename}")
 async def get_file(filename: str):
     file_path = os.path.join("/usr/src/app/outputs", filename)
-    # Check if file exists before returning it
     if os.path.exists(file_path):
         return FileResponse(file_path, filename=filename)
-    
     return {"error": "File not found"}
 
-@app.get("/files/")
+@api_app.get("/files/")
 async def list_files():
-    files = os.listdir(DOC_PATH)
-    print(f"Files in {DOC_PATH}: {files}")
+    files = os.listdir("/usr/src/app/outputs")
     return {"files": files}
 
-
-@app.post("/api/multi_agents")
+@api_app.post("/api/multi_agents")
 async def run_multi_agents():
     return await execute_multi_agents(manager)
 
-
-@app.post("/upload/")
+@api_app.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
-    return await handle_file_upload(file, DOC_PATH)
+    return await handle_file_upload(file, "/usr/src/app/outputs")
 
-
-@app.delete("/files/{filename}")
+@api_app.delete("/files/{filename}")
 async def delete_file(filename: str):
-    return await handle_file_deletion(filename, DOC_PATH)
+    return await handle_file_deletion(filename, "/usr/src/app/outputs")
 
+# --- WebSocket Endpoints (Base Path: /ws) ---
 
-@app.websocket("/ws")
+@ws_app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
@@ -144,3 +69,14 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 
+# --- Main FastAPI App ---
+app = FastAPI()
+
+# Mount API & WebSocket apps with different base paths
+app.mount("/api/v1", api_app)
+app.mount("/ws", ws_app)
+
+# Serve static files
+app.mount("/outputs", StaticFiles(directory="/usr/src/app/outputs"), name="outputs")
+app.mount("/site", StaticFiles(directory="./frontend"), name="site")
+app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
