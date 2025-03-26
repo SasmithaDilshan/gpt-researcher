@@ -43,10 +43,7 @@ async def get_file(filename: str):
         return FileResponse(file_path, filename=filename)
     return {"error": "File not found"}
 
-@api_router.get("/files/")
-async def list_files():
-    files = os.listdir("/usr/src/app/outputs")
-    return {"files": files}
+
 
 @api_router.post("/multi_agents")
 async def run_multi_agents():
@@ -55,11 +52,6 @@ async def run_multi_agents():
 @api_router.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
     return await handle_file_upload(file, "/usr/src/app/outputs")
-
-@api_router.delete("/files/{filename}")
-async def delete_file(filename: str):
-    return await handle_file_deletion(filename, "/usr/src/app/outputs")
-
 
 # --- WebSocket Router ---
 ws_router = APIRouter(prefix="/api/v2")
