@@ -97,13 +97,3 @@ paths:
           description: "Multi-agent execution completed successfully"
         "500":
           description: "Internal server error"
-
-  /ws:
-    get:
-      summary: "WebSocket Connection"
-      description: "Establishes a WebSocket connection for real-time updates."
-      responses:
-        "101":
-          description: "WebSocket connection established"
-        "400":
-          description: "Bad request"
