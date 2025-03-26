@@ -74,7 +74,7 @@ app = FastAPI()
 
 # Mount API & WebSocket apps with different base paths
 app.mount("/api/v1", api_app)
-app.mount("/ws", ws_app)
+app.mount("/api/v2", ws_app)
 
 # Serve static files
 app.mount("/outputs", StaticFiles(directory="/usr/src/app/outputs"), name="outputs")
