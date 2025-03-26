@@ -3,6 +3,7 @@ import os
 from typing import Dict, List
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, File, UploadFile, Header
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -103,6 +104,15 @@ def startup_event():
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "report": None})
 
+# Endpoint to serve files directly
+@app.get("/files/{filename}")
+async def get_file(filename: str):
+    file_path = os.path.join("/usr/src/app/outputs", filename)
+    # Check if file exists before returning it
+    if os.path.exists(file_path):
+        return FileResponse(file_path, filename=filename)
+    
+    return {"error": "File not found"}
 
 @app.get("/files/")
 async def list_files():

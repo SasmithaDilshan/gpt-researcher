@@ -1,42 +1,77 @@
 openapi: 3.0.0
 info:
-  title: Multi-Agent Research System API
-  version: '1.0.0'
-  description: |
-    This OpenAPI specification defines the REST API for research execution, 
-    file management, and other functionalities.
+  title: "FastAPI Backend"
+  description: "API for managing files, multi-agents, and WebSocket communication."
+  version: "1.0.0"
 
 servers:
-  - url: http://0.0.0.0:9090
-    description: Local server
+  - url: "http://localhost:9090"
+    description: "Local development server"
 
 paths:
-  /api/multi_agents:
-    post:
-      summary: Execute multi-agent research
-      operationId: executeMultiAgents
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MultiAgentRequest'
+  /:
+    get:
+      summary: "Render index page"
+      description: "Returns the index page using Jinja2 templates."
       responses:
-        '200':
-          description: Multi-agent execution started successfully
+        "200":
+          description: "HTML page rendered successfully"
+
+  /files/:
+    get:
+      summary: "List all files"
+      description: "Returns a list of available files in the outputs directory."
+      responses:
+        "200":
+          description: "List of files"
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    example: "started"
+                  files:
+                    type: array
+                    items:
+                      type: string
+
+  /files/{filename}:
+    get:
+      summary: "Download a file"
+      description: "Fetches and downloads a file from the outputs directory."
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "File retrieved successfully"
+          content:
+            application/octet-stream: {}
+
+        "404":
+          description: "File not found"
+
+    delete:
+      summary: "Delete a file"
+      description: "Deletes a file from the outputs directory."
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "File deleted successfully"
+        "404":
+          description: "File not found"
 
   /upload/:
     post:
-      summary: Upload a file
-      operationId: uploadFile
+      summary: "Upload a file"
+      description: "Uploads a file and saves it in the outputs directory."
       requestBody:
         required: true
         content:
@@ -48,68 +83,27 @@ paths:
                   type: string
                   format: binary
       responses:
-        '200':
-          description: File uploaded successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileUploadResponse'
+        "201":
+          description: "File uploaded successfully"
+        "400":
+          description: "Invalid file upload request"
 
-  /files/:
+  /api/multi_agents:
+    post:
+      summary: "Execute multi-agent tasks"
+      description: "Runs multiple agents for processing."
+      responses:
+        "200":
+          description: "Multi-agent execution completed successfully"
+        "500":
+          description: "Internal server error"
+
+  /ws:
     get:
-      summary: List available files
-      operationId: listFiles
+      summary: "WebSocket Connection"
+      description: "Establishes a WebSocket connection for real-time updates."
       responses:
-        '200':
-          description: List of available files
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  files:
-                    type: array
-                    items:
-                      type: string
-                    example: ["file1.txt", "report.pdf"]
-
-  /files/{filename}:
-    delete:
-      summary: Delete a specific file
-      operationId: deleteFile
-      parameters:
-        - name: filename
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: File deleted successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "File deleted"
-
-components:
-  schemas:
-    MultiAgentRequest:
-      type: object
-      properties:
-        task:
-          type: string
-          example: "Summarize research papers"
-        agent:
-          type: string
-          example: "gpt-4"
-
-    FileUploadResponse:
-      type: object
-      properties:
-        filename:
-          type: string
-          example: "uploaded_file.txt"
+        "101":
+          description: "WebSocket connection established"
+        "400":
+          description: "Bad request"
