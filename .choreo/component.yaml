@@ -25,12 +25,12 @@ endpoints:
     # The path should be relative to the docker context.
     schemaFilePath: asyncapi.yaml
   
-  # - name: gpt_researcher_backend_rest
-  #   displayName: gpt researcher backend rest
-  #   service:
-  #     basePath: /api/v1
-  #     port: 8000
-  #   type: REST
-  #   networkVisibilities: 
-  #     - Public
-  #   schemaFilePath: openapi.yaml
+  - name: gpt_researcher_backend_rest
+    displayName: gpt researcher backend rest
+    service:
+      basePath: /api/v1
+      port: 8000
+    type: REST
+    networkVisibilities: 
+      - Public
+    schemaFilePath: openapi.yaml
