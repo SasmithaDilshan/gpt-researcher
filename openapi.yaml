@@ -33,6 +33,36 @@ paths:
                     type: string
                     example: "started"
 
+
+  /files/{filename}:
+    get:
+      summary: Retrieve a specific file
+      operationId: getFile
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          description: The name of the file to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File retrieved successfully
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: File not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "File not found"
   /upload/:
     post:
       summary: Upload a file
