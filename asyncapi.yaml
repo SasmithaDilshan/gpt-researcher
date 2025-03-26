@@ -8,7 +8,7 @@ info:
 
 servers:
   local:
-    url: ws://0.0.0.0:8000/api/v2
+    url: http://0.0.0.0:8000/api/v2
     protocol: ws
 
 channels:
