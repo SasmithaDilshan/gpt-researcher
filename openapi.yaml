@@ -7,7 +7,7 @@ info:
     file management, and other functionalities.
 
 servers:
-  - url: http://0.0.0.0:9090
+  - url: http://0.0.0.0:8000
     description: Local server
 
 paths:
