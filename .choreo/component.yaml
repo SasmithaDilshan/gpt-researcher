@@ -29,7 +29,7 @@ endpoints:
     displayName: gpt researcher backend rest
     service:
       basePath: /api/v1
-      port: 9090
+      port: 8000
     type: REST
     networkVisibilities: 
       - Public
