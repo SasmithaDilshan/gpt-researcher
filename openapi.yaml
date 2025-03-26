@@ -7,87 +7,20 @@ info:
     file management, and other functionalities.
 
 servers:
-  - url: http://localhost:8000/api/v1
+  - url: http://0.0.0.0:8000/api/v1
     description: Local server
 
 paths:
-  /:
-    get:
-      summary: Render the index page
-      operationId: readRoot
-      parameters:
-        - name: request
-          in: query
-          required: false
-          description: The HTTP request object.
-      responses:
-        '200':
-          description: Successfully rendered index page
-          content:
-            text/html:
-              schema:
-                type: string
-
-  /files/{filename}:
-    get:
-      summary: Retrieve a specific file
-      operationId: getFile
-      parameters:
-        - name: filename
-          in: path
-          required: true
-          description: Name of the file to retrieve
-          schema:
-            type: string
-      responses:
-        '200':
-          description: File retrieved successfully
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-        '404':
-          description: File not found
-
-  /files/:
-    get:
-      summary: List all available files
-      operationId: listFiles
-      responses:
-        '200':
-          description: Successfully retrieved list of files
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  files:
-                    type: array
-                    items:
-                      type: string
-                    example: ["file1.txt", "report.pdf"]
-
-  /multi_agents:
+  /api/multi_agents:
     post:
       summary: Execute multi-agent research
-      operationId: runMultiAgents
+      operationId: executeMultiAgents
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                task:
-                  type: string
-                  example: "Summarize research papers"
-                report_type:
-                  type: string
-                  example: "detailed"
-                agent:
-                  type: string
-                  example: "gpt-4"
+              $ref: '#/components/schemas/MultiAgentRequest'
       responses:
         '200':
           description: Multi-agent execution started successfully
@@ -120,11 +53,25 @@ paths:
           content:
             application/json:
               schema:
+                $ref: '#/components/schemas/FileUploadResponse'
+
+  /files/:
+    get:
+      summary: List available files
+      operationId: listFiles
+      responses:
+        '200':
+          description: List of available files
+          content:
+            application/json:
+              schema:
                 type: object
                 properties:
-                  filename:
-                    type: string
-                    example: "uploaded_file.txt"
+                  files:
+                    type: array
+                    items:
+                      type: string
+                    example: ["file1.txt", "report.pdf"]
 
   /files/{filename}:
     delete:
@@ -134,7 +81,6 @@ paths:
         - name: filename
           in: path
           required: true
-          description: Name of the file to delete
           schema:
             type: string
       responses:
@@ -148,5 +94,22 @@ paths:
                   message:
                     type: string
                     example: "File deleted"
-        '404':
-          description: File not found
+
+components:
+  schemas:
+    MultiAgentRequest:
+      type: object
+      properties:
+        task:
+          type: string
+          example: "Summarize research papers"
+        agent:
+          type: string
+          example: "gpt-4"
+
+    FileUploadResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+          example: "uploaded_file.txt"
