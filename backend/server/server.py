@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, File, UploadFile
+from fastapi import FastAPI, APIRouter, Request, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10,15 +10,14 @@ from backend.server.server_utils import (
     handle_file_upload, handle_file_deletion, execute_multi_agents, handle_websocket_communication
 )
 
-# Separate FastAPI apps
-api_app = FastAPI()
-ws_app = FastAPI()
+# Initialize FastAPI app
+app = FastAPI()
 
 # WebSocket manager
 manager = WebSocketManager()
 
 # Middleware (Apply only to API, not WebSocket)
-api_app.add_middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
@@ -29,39 +28,43 @@ api_app.add_middleware(
 # Template rendering
 templates = Jinja2Templates(directory="./frontend")
 
-# --- REST API Endpoints (Base Path: /api/v1) ---
+# --- API Routers ---
 
-@api_app.get("/")
+api_router = APIRouter(prefix="/api/v1")
+
+@api_router.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "report": None})
 
-@api_app.get("/files/{filename}")
+@api_router.get("/files/{filename}")
 async def get_file(filename: str):
     file_path = os.path.join("/usr/src/app/outputs", filename)
     if os.path.exists(file_path):
         return FileResponse(file_path, filename=filename)
     return {"error": "File not found"}
 
-@api_app.get("/files/")
+@api_router.get("/files/")
 async def list_files():
     files = os.listdir("/usr/src/app/outputs")
     return {"files": files}
 
-@api_app.post("/api/multi_agents")
+@api_router.post("/multi_agents")
 async def run_multi_agents():
     return await execute_multi_agents(manager)
 
-@api_app.post("/upload/")
+@api_router.post("/upload/")
 async def upload_file(file: UploadFile = File(...)):
     return await handle_file_upload(file, "/usr/src/app/outputs")
 
-@api_app.delete("/files/{filename}")
+@api_router.delete("/files/{filename}")
 async def delete_file(filename: str):
     return await handle_file_deletion(filename, "/usr/src/app/outputs")
 
-# --- WebSocket Endpoints (Base Path: /ws) ---
 
-@ws_app.websocket("/ws")
+# --- WebSocket Router ---
+ws_router = APIRouter(prefix="/api/v2")
+
+@ws_router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
     try:
@@ -69,14 +72,12 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 
-# --- Main FastAPI App ---
-app = FastAPI()
 
-# Mount API & WebSocket apps with different base paths
-app.mount("/api/v1", api_app)
-app.mount("/api/v2", ws_app)
+# --- Register Routers ---
+app.include_router(api_router)
+app.include_router(ws_router)
 
-# Serve static files
+# --- Serve static files ---
 app.mount("/outputs", StaticFiles(directory="/usr/src/app/outputs"), name="outputs")
 app.mount("/site", StaticFiles(directory="./frontend"), name="site")
 app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
