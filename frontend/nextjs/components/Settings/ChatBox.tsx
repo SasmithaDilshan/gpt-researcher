@@ -65,7 +65,7 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
 
               // Fetch the file from the server
              
-              const response = await axios.get(`https://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/deployment/gpt_researcher_backend_rest/v1.0/files/${filePath}`, {
+              const response = await axios.get(`https://47bb0b75-a54b-4d3a-ae01-17594ccde118-dev.e1-us-east-azure.choreoapis.dev/luxuryhotels/gpt-researcher-backend/gpt_researcher_backend_rest/v1/files/${filePath}`, {
                 headers: {
                   'Authorization': `Bearer ${accessToken}`
                 },
