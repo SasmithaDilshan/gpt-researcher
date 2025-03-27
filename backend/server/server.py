@@ -47,7 +47,7 @@ async def get_file(filename: str):
     if os.path.exists(file_path):
         return FileResponse(file_path, filename=filename_only)
     
-    return {"error": "{file_path}"}
+    return {"error": file_path}
 
 
 @api_router.post("/multi_agents")
