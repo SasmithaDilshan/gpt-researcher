@@ -34,7 +34,7 @@ paths:
                     example: "started"
 
 
-  /files/{filename}:
+  /{filename}:
     get:
       summary: Retrieve a specific file
       operationId: getFile

@@ -75,6 +75,6 @@ app.include_router(api_router)
 app.include_router(ws_router)
 
 # --- Serve static files ---
-app.mount("/outputs", StaticFiles(directory="/usr/src/app/outputs"), name="outputs")
+app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 app.mount("/site", StaticFiles(directory="./frontend"), name="site")
 app.mount("/static", StaticFiles(directory="./frontend/static"), name="static")
