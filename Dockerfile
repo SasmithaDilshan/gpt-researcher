@@ -41,9 +41,10 @@ RUN useradd -u 10014 -ms /bin/bash gpt-researcher \
     && chmod -R 777 /usr/src/app \
     && chmod -R 777 /usr/src/app/outputs \
     && chmod -R 777 /usr/src/app/logs
-
-ENV CHOREO_GPT_RESEARCHER_CHOREOAPIKEY=chk_eyJjb25uZWN0aW9uLWlkIjoiMDFmMDA0ZGItOWVmOS0xYjgwLWIyOTYtZDFkZTllMTdjMTE2In0=cxm3RA
-ENV CHOREO_GPT_RESEARCHER_SERVICEURL=ws://gpt-researcher-backend-3418791020:8000/
+    
+RUN mkdir -p /tmp/fontconfig && chmod 777 /tmp/fontconfig
+ENV FONTCONFIG_CACHE=/tmp/fontconfig
+    
 # Switch to the user with UID 10014
 USER 10014
 WORKDIR /usr/src/app

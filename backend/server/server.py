@@ -36,7 +36,7 @@ api_router = APIRouter(prefix="/api/v1")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "report": None})
 
-@api_router.get("/files/{filename}")
+@api_router.get("/{filename}")
 async def get_file(filename: str):
     # Extract only the file name after "outputs/"
     filename_only = os.path.basename(filename)  # or Path(filename).name
