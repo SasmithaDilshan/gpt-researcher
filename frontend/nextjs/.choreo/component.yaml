@@ -1,9 +1,10 @@
-schemaVersion: "1.1"
+schemaVersion: "1.2"
 
 dependencies:
+   dependencies:
     connectionReferences:
-    - name: gpt researcher backend
-      resourceRef: service:/prism/gpt-researcher-backend/v1/2980e/PUBLIC
+    - name: test web
+      resourceRef: service:/prism/deployment/v1/2980e/PUBLIC
 
     - name: test
       resourceRef: service:/prism/deployment/v1/86389/PUBLIC
