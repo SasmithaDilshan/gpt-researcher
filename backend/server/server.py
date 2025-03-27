@@ -38,11 +38,16 @@ async def read_root(request: Request):
 
 @api_router.get("/files/{filename}")
 async def get_file(filename: str):
-    file_path = os.path.join("/usr/src/app/outputs", filename)
-    if os.path.exists(file_path):
-        return FileResponse(file_path, filename=filename)
-    return {"error": "File not found"}
+    # Extract only the file name after "outputs/"
+    filename_only = os.path.basename(filename)  # or Path(filename).name
 
+    # Construct the absolute path
+    file_path = os.path.join("/usr/src/app/outputs", filename_only)
+
+    if os.path.exists(file_path):
+        return FileResponse(file_path, filename=filename_only)
+    
+    return {"error": "File not found"}
 
 
 @api_router.post("/multi_agents")

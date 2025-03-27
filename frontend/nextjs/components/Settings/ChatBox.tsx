@@ -62,7 +62,9 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
 
               const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
               const accessToken: string = auth.access_token;
-
+              console.log('accessToken', accessToken);
+              console.log('filePath', filePath);
+              console.log('config.CHOREO_TEST_SERVICEURL', config.CHOREO_TEST_SERVICEURL);
               // Construct and return the access URL
               return `${config.CHOREO_TEST_SERVICEURL}/files/${filePath}?access_token=${accessToken}`;
             };
