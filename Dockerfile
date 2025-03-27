@@ -8,6 +8,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libkrb5-3 \
     libkrb5support0 \
     && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install -y \
+    libgirepository1.0-dev \
+    gir1.2-pango-1.0 \
+    gobject-introspection \
+    libcairo2-dev \
+    libpango1.0-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
