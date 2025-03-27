@@ -41,9 +41,7 @@ RUN useradd -u 10014 -ms /bin/bash gpt-researcher \
     && chmod -R 777 /usr/src/app \
     && chmod -R 777 /usr/src/app/outputs \
     && chmod -R 777 /usr/src/app/logs
-    
-RUN mkdir -p /tmp/fontconfig && chmod 777 /tmp/fontconfig
-ENV FONTCONFIG_CACHE=/tmp/fontconfig
+
     
 # Switch to the user with UID 10014
 USER 10014

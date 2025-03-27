@@ -51,7 +51,7 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
             console.log('output', output);
             const newAccessData: any = {};
 
-            const fetchFileUrl = async (filePath: string): Promise<string> => {
+            const fetchAndSaveFile = async (filePath: string, fileType: string): Promise<string> => {
               const config = await fetch('/config.json').then((response) => response.json());
               const getClientCredentials = clientCredentials(
                 axios.create(),
@@ -62,21 +62,40 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
 
               const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
               const accessToken: string = auth.access_token;
-              console.log('accessToken', accessToken);
-              console.log('filePath', filePath);
-              console.log('config.CHOREO_TEST_SERVICEURL', config.CHOREO_TEST_SERVICEURL);
-              // Construct and return the access URL
-              return `${config.CHOREO_TEST_SERVICEURL}/files/${filePath}?access_token=${accessToken}`;
+
+              // Fetch the file from the server
+             
+              const response = await axios.get(`https://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/deployment/gpt_researcher_backend_rest/v1.0/files/${filePath}`, {
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`
+                },
+                responseType: 'blob'
+              });
+
+              if (response.status < 200 || response.status >= 300) {
+                throw new Error(`Failed to fetch file: ${response.statusText}`);
+              }
+
+              // Use the response data as a Blob
+              const blob = response.data;
+
+              // Create a temporary URL for the file
+              const fileURL = URL.createObjectURL(blob);
+
+              // Log the file URL for debugging
+              console.log(`Generated file URL for ${fileType}:`, fileURL);
+
+              return fileURL;
             };
 
             if (output.pdf) {
-              newAccessData.pdf = await fetchFileUrl(output.pdf);
+              newAccessData.pdf = await fetchAndSaveFile(output.pdf, 'PDF');
             }
             if (output.docx) {
-              newAccessData.docx = await fetchFileUrl(output.docx);
+              newAccessData.docx = await fetchAndSaveFile(output.docx, 'DOCX');
             }
             if (output.json) {
-              newAccessData.json = await fetchFileUrl(output.json);
+              newAccessData.json = await fetchAndSaveFile(output.json, 'JSON');
             }
 
             setAccessData(newAccessData);
