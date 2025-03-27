@@ -55,9 +55,9 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
               const config = await fetch('/config.json').then((response) => response.json());
               const getClientCredentials = clientCredentials(
                 axios.create(),
-                config.CHOREO_TEST_TOKENURL,
-                config.CHOREO_TEST_CONSUMERKEY,
-                config.CHOREO_TEST_CONSUMERSECRET
+                config.CHOREO_GPT_RESEARCHER_CONNECTION_TOKENURL,
+                config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERKEY,
+                config.CHOREO_GPT_RESEARCHER_CONNECTION_CONSUMERSECRET
               );
 
               const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
