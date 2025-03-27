@@ -5,7 +5,12 @@ import AgentLogs from '../Task/AgentLogs';
 import AccessReport from '../ResearchBlocks/AccessReport';
 import { getHost } from '../../helpers/getHost';
 import { ChatBoxSettings } from '@/types/data';
+import axios from "axios";
+import { clientCredentials } from 'axios-oauth-client';
 
+interface AccessTokenResponse {
+  access_token: string;
+}
 interface ChatBoxProps {
   chatBoxSettings: ChatBoxSettings;
   setChatBoxSettings: React.Dispatch<React.SetStateAction<ChatBoxSettings>>;
@@ -34,7 +39,7 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
       getHost().then(({ ws, headers }) => {
         const newSocket = ws;
         setSocket(newSocket);
-        newSocket.onmessage = (event) => {
+        newSocket.onmessage = async (event) => {
           const data = JSON.parse(event.data) as WebSocketMessage;
           
           if (data.type === 'logs') {
@@ -44,11 +49,35 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
           } else if (data.type === 'path') {
             const output = data.output as OutputData;
             console.log('output', output);
-            setAccessData({
-              ...(output.pdf && { pdf: `outputs/${output.pdf}` }),
-              ...(output.docx && { docx: `outputs/${output.docx}` }),
-              ...(output.json && { json: `outputs/${output.json}` })
-            });
+            const newAccessData: any = {};
+
+            const fetchFileUrl = async (filePath: string): Promise<string> => {
+              const config = await fetch('/config.json').then((response) => response.json());
+              const getClientCredentials = clientCredentials(
+                axios.create(),
+                config.CHOREO_TEST_TOKENURL,
+                config.CHOREO_TEST_CONSUMERKEY,
+                config.CHOREO_TEST_CONSUMERSECRET
+              );
+
+              const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
+              const accessToken: string = auth.access_token;
+
+              // Construct and return the access URL
+              return `${config.CHOREO_TEST_SERVICEURL}/files/${filePath}?access_token=${accessToken}`;
+            };
+
+            if (output.pdf) {
+              newAccessData.pdf = await fetchFileUrl(output.pdf);
+            }
+            if (output.docx) {
+              newAccessData.docx = await fetchFileUrl(output.docx);
+            }
+            if (output.json) {
+              newAccessData.json = await fetchFileUrl(output.json);
+            }
+
+            setAccessData(newAccessData);
           }
         };
 
