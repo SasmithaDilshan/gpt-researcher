@@ -34,7 +34,7 @@ const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings
     // const finalPath = cleanPath.startsWith('outputs/') 
     //   ? cleanPath 
     //   : `outputs/${cleanPath}`;
-    
+    console.log('path', path);
     return `${path}`;
   };
 
