@@ -42,7 +42,7 @@ async def get_file(filename: str):
     filename_only = os.path.basename(filename)  # or Path(filename).name
 
     # Construct the absolute path
-    file_path = os.path.join("outputs", filename_only)
+    file_path = os.path.join("/usr/src/app/outputs", filename_only)
 
     if os.path.exists(file_path):
         return FileResponse(file_path, filename=filename_only)

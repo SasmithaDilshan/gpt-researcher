@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libkrb5-3 \
     libkrb5support0 \
     && rm -rf /var/lib/apt/lists/*
+
 RUN apt update && apt install -y \
     libgirepository1.0-dev \
     gir1.2-pango-1.0 \
@@ -16,6 +17,11 @@ RUN apt update && apt install -y \
     libpango1.0-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN apt update && apt install -y fontconfig
+
+RUN mkdir -p /usr/src/app/.cache/fontconfig && chmod -R 777 /usr/src/app/.cache/fontconfig
+ENV FONTCONFIG_PATH=/usr/share/fonts
+ENV XDG_CACHE_HOME=/usr/src/app/.cache
 # Stage 2: Python dependencies installation
 FROM install-browser AS gpt-researcher-install
 
