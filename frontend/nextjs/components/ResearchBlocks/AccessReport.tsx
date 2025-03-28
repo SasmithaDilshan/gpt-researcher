@@ -38,9 +38,8 @@ const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings
 
       const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
       const accessToken: string = auth.access_token;
-      console.log('accessToken', accessToken);
       // Construct the access URL with the access token
-      const accessUrl = `https://47bb0b75-a54b-4d3a-ae01-17594ccde118-dev.e1-us-east-azure.choreoapis.dev/luxuryhotels/gpt-researcher-backend/gpt_researcher_backend_rest/v1.0/${sanitizedFilePath}`;
+      const accessUrl = `${config.CHOREO_GPT_RESEARCHER_REST_SERVICEURL}/${sanitizedFilePath}`;
       // Fetch the report from the backend
       const response = await axios.get(accessUrl, {
         headers: {
