@@ -63,14 +63,19 @@ export default function ChatBox({ chatBoxSettings, setChatBoxSettings }: ChatBox
               const auth: AccessTokenResponse = await getClientCredentials('OPTIONAL_SCOPES');
               const accessToken: string = auth.access_token;
 
+              // Remove 'outputs/' prefix from the file path if it exists
+              const sanitizedFilePath = filePath.startsWith('outputs/') ? filePath.replace('outputs/', '') : filePath;
+
               // Fetch the file from the server
-             
-              const response = await axios.get(`https://47bb0b75-a54b-4d3a-ae01-17594ccde118-dev.e1-us-east-azure.choreoapis.dev/luxuryhotels/gpt-researcher-backend/gpt_researcher_backend_rest/v1/files/${filePath}`, {
-                headers: {
-                  'Authorization': `Bearer ${accessToken}`
-                },
-                responseType: 'blob'
-              });
+              const response = await axios.get(
+                `https://47bb0b75-a54b-4d3a-ae01-17594ccde118-dev.e1-us-east-azure.choreoapis.dev/luxuryhotels/gpt-researcher-backend/gpt_researcher_backend_rest/v1/${sanitizedFilePath}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                  },
+                  responseType: 'blob',
+                }
+              );
 
               if (response.status < 200 || response.status >= 300) {
                 throw new Error(`Failed to fetch file: ${response.statusText}`);

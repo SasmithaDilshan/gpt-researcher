@@ -14,7 +14,7 @@ interface AccessReportProps {
 }
 
 const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings, report }) => {
-  const host = "https://eddb4fc5-5bf6-40a5-a54d-8ea2a3fcbaca-dev.e1-us-east-azure.choreoapis.dev/prism/gpt-researcher-backend/gpt_researcher_backend/v1.0";
+  // const host = "https://47bb0b75-a54b-4d3a-ae01-17594ccde118-dev.e1-us-east-azure.choreoapis.dev/luxuryhotels/gpt-researcher-backend/gpt_researcher_backend_rest/v1.0";
 
   const getReportLink = (dataType: 'pdf' | 'docx' | 'json'): string => {
     // Early return if path is not available
@@ -25,17 +25,17 @@ const AccessReport: React.FC<AccessReportProps> = ({ accessData, chatBoxSettings
 
     const path = accessData[dataType] as string;
     
-    // Clean the path - remove leading/trailing slashes and handle outputs/ prefix
-    const cleanPath = path
-      .trim()
-      .replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
+    // // Clean the path - remove leading/trailing slashes and handle outputs/ prefix
+    // const cleanPath = path
+    //   .trim()
+    //   .replace(/^\/+|\/+$/g, ''); // Remove leading/trailing slashes
     
-    // Only prepend outputs/ if it's not already there
-    const finalPath = cleanPath.startsWith('outputs/') 
-      ? cleanPath 
-      : `outputs/${cleanPath}`;
+    // // Only prepend outputs/ if it's not already there
+    // const finalPath = cleanPath.startsWith('outputs/') 
+    //   ? cleanPath 
+    //   : `outputs/${cleanPath}`;
     
-    return `${host}/${finalPath}`;
+    return `${path}`;
   };
 
   // Safety check for accessData
