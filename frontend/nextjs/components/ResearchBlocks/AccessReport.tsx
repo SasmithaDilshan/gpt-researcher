@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import axios from "axios";
 import { clientCredentials } from 'axios-oauth-client';
 
 interface AccessTokenResponse {
