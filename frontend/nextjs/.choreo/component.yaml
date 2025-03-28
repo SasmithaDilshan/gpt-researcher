@@ -1,19 +1,19 @@
 schemaVersion: "1.2"
 
-# dependencies:
-#    dependencies:
-#     connectionReferences:
-#     - name: test web
-#       resourceRef: service:/prism/deployment/v1/2980e/PUBLIC
-
-#     - name: test
-#       resourceRef: service:/prism/deployment/v1/86389/PUBLIC
-
-
 dependencies:
+   dependencies:
     connectionReferences:
-    - name: gpt researcher web
-      resourceRef: service:/luxuryhotels/gpt-researcher-backend/v1/2980e/PUBLIC
+    - name: test web
+      resourceRef: service:/prism/deployment/v1/2980e/PUBLIC
 
-    - name: rest web
-      resourceRef: service:/luxuryhotels/gpt-researcher-backend/v1/86389/PUBLIC
+    - name: test
+      resourceRef: service:/prism/deployment/v1/86389/PUBLIC
+
+
+# dependencies:
+#     connectionReferences:
+#     - name: gpt researcher web
+#       resourceRef: service:/luxuryhotels/gpt-researcher-backend/v1/2980e/PUBLIC
+
+#     - name: rest web
+#       resourceRef: service:/luxuryhotels/gpt-researcher-backend/v1/86389/PUBLIC
