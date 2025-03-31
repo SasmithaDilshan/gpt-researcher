@@ -1,13 +1,11 @@
 schemaVersion: "1.2"
 
 dependencies:
-   dependencies:
     connectionReferences:
-    - name: test web
-      resourceRef: service:/prism/deployment/v1/2980e/PUBLIC
-
-    - name: test
-      resourceRef: service:/prism/deployment/v1/86389/PUBLIC
+    - name: websocket connection
+      resourceRef: service:/prism/gpt---reseacher-backend/v1/2980e/PUBLIC
+    - name: rest connection
+      resourceRef: service:/prism/gpt---reseacher-backend/v1/86389/PUBLIC
 
 
 # dependencies:
